@@ -76,5 +76,15 @@ export const StudentRepository = {
     db.tasmik_records = db.tasmik_records.filter((r) => r.studentId !== id);
     saveMockDb(db);
     return true;
+  },
+
+  async bulkCreate(students) {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.bulkCreateStudents(students);
+    }
+    const db = getMockDb();
+    db.students.push(...students);
+    saveMockDb(db);
+    return students;
   }
 };

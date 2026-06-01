@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { StudentRepository } from "../student/repository/StudentRepository.js";
 import { Icon, Avatar } from "../../components/Shared.jsx";
+import { BulkImportModal } from "../student/import/BulkImportModal.jsx";
 
 export function StudentManagement({ students = [], onRefresh }) {
   const [q, setQ] = useState("");
   const [modal, setModal] = useState(null); // 'add' | 'edit' | 'delete'
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
   
   // Form fields
   const [name, setName] = useState("");
@@ -97,9 +99,14 @@ export function StudentManagement({ students = [], onRefresh }) {
           <h1>Pengurusan Pelajar</h1>
           <p>Daftar, edit profil, dan padam rekod pelajar maahad</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Icon name="plus" size={15} /> Tambah Pelajar
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button className="btn btn-secondary" style={{ border: "1px solid var(--line)" }} onClick={() => setImportOpen(true)}>
+            <Icon name="sparkle" size={14} /> Bulk Import
+          </button>
+          <button className="btn btn-primary" onClick={openAdd}>
+            <Icon name="plus" size={15} /> Tambah Pelajar
+          </button>
+        </div>
       </div>
 
       <div className="card" style={{ padding: 18, marginBottom: 16, display: "flex", gap: 14, alignItems: "center" }}>
@@ -235,6 +242,12 @@ export function StudentManagement({ students = [], onRefresh }) {
           </div>
         </div>
       )}
+
+      <BulkImportModal 
+        isOpen={importOpen} 
+        onClose={() => setImportOpen(false)} 
+        onRefresh={onRefresh} 
+      />
     </div>
   );
 }

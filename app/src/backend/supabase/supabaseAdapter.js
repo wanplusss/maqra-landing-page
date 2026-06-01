@@ -84,6 +84,16 @@ export const supabaseAdapter = {
     return true;
   },
 
+  async bulkCreateStudents(students) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .insert(students)
+      .select();
+    if (error) throw error;
+    return data;
+  },
+
   // ---- TASMIK RECORDS ----
   async saveTasmikRecord(record) {
     checkActive();
