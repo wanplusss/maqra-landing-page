@@ -14,6 +14,10 @@ export function SchoolEditor() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [founded, setFounded] = useState(2016);
+  const [bankName, setBankName] = useState("");
+  const [bankAccount, setBankAccount] = useState("");
+  const [donationTarget, setDonationTarget] = useState(10000);
+  const [donationRaised, setDonationRaised] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -25,6 +29,10 @@ export function SchoolEditor() {
       setPhone(data.phone || "");
       setEmail(data.email || "");
       setFounded(data.founded || 2016);
+      setBankName(data.bankName || "");
+      setBankAccount(data.bankAccount || "");
+      setDonationTarget(data.donationTarget || 10000);
+      setDonationRaised(data.donationRaised || 0);
     }
     load();
   }, []);
@@ -41,7 +49,11 @@ export function SchoolEditor() {
         description,
         phone,
         email,
-        founded: parseInt(founded)
+        founded: parseInt(founded),
+        bankName,
+        bankAccount,
+        donationTarget: parseFloat(donationTarget),
+        donationRaised: parseFloat(donationRaised)
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -87,9 +99,31 @@ export function SchoolEditor() {
             </div>
           </div>
 
-          <div className="field" style={{ width: "50%" }}>
-            <label>Tahun Ditubuhkan</label>
-            <input className="input" type="number" value={founded} onChange={(e) => setFounded(e.target.value)} required />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="field">
+              <label>Tahun Ditubuhkan</label>
+              <input className="input" type="number" value={founded} onChange={(e) => setFounded(e.target.value)} required />
+            </div>
+            <div className="field">
+              <label>Nama Bank Sumbangan</label>
+              <input className="input" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="cth. Maybank Islamic" />
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Nombor Akaun Bank</label>
+            <input className="input" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="cth. 5621 1102 3345" />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="field">
+              <label>Sasaran Wakaf (RM)</label>
+              <input className="input" type="number" value={donationTarget} onChange={(e) => setDonationTarget(e.target.value)} />
+            </div>
+            <div className="field">
+              <label>Dana Terkumpul (RM)</label>
+              <input className="input" type="number" value={donationRaised} onChange={(e) => setDonationRaised(e.target.value)} />
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8 }}>
@@ -119,9 +153,11 @@ export function SchoolEditor() {
         </div>
         <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
           {[
-            ["Nama Akaun", "Maahad Tahfiz Al-Furqan"],
-            ["Maybank Islamic", "5621 0098 4412"],
-            ["Bank Islam", "1203 8812 4099"]
+            ["Nama Penerima", name || "Maahad Tahfiz Al-Furqan"],
+            ["Bank Sumbangan", bankName || "Maybank Islamic"],
+            ["No. Akaun Bank", bankAccount || "5621 0098 4412"],
+            ["Sasaran Wakaf", `RM ${donationTarget}`],
+            ["Dana Terkumpul", `RM ${donationRaised}`]
           ].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}>
               <span style={{ color: "var(--ink-3)" }}>{k}</span>

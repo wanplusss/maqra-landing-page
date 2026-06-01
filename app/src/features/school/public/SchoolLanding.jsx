@@ -142,9 +142,9 @@ export function SchoolLanding({ onEnterLookup }) {
           </div>
           <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9 }}>
             {[
-              ["Nama Bank", "Maybank Islamic"],
-              ["No. Akaun", "5621 0098 4412"],
-              ["Penerima", "Maahad Tahfiz Al-Furqan"]
+              ["Nama Bank", school.bankName || "Maybank Islamic"],
+              ["No. Akaun", school.bankAccount || "5621 0098 4412"],
+              ["Penerima", school.name || "Maahad Tahfiz Al-Furqan"]
             ].map(([k, v]) => (
               <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
                 <span style={{ color: "var(--ink-3)" }}>{k}</span>
@@ -156,8 +156,9 @@ export function SchoolLanding({ onEnterLookup }) {
             className="btn" 
             style={{ width: "100%", justifyContent: "center", marginTop: 18 }}
             onClick={() => {
-              navigator.clipboard.writeText("562100984412");
-              alert("Nombor akaun bank Maybank telah disalin!");
+              const acct = (school.bankAccount || "562100984412").replace(/\s/g, "");
+              navigator.clipboard.writeText(acct);
+              alert(`Nombor akaun bank ${school.bankName || "Maybank"} telah disalin!`);
             }}
           >
             <Icon name="copy" size={15} /> Salin Nombor Akaun
