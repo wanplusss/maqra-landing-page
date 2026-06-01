@@ -4,7 +4,14 @@ import { Wordmark, Icon } from "../../components/Shared.jsx";
 
 export function TeacherLogin({ role = "teacher", slug = "al-furqan", defaultEmail = "aisyah@alfurqan.edu.my", onLoginSuccess }) {
   const [email, setEmail] = useState(defaultEmail);
-  const [pw, setPw] = useState("password123");
+  
+  const getDefaultPassword = (r) => {
+    if (r === "admin") return "admin123";
+    if (r === "superadmin") return "owner123";
+    return "password123";
+  };
+
+  const [pw, setPw] = useState(getDefaultPassword(role));
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 

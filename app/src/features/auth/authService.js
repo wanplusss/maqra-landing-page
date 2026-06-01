@@ -7,29 +7,31 @@ import { ROLES } from "./roles.js";
 export const authService = {
   async login(email, password) {
     if (IS_SUPABASE_CONFIGURED && supabase) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      if (error) throw error;
-      
-      // Fetch user profile to determine role
-      // In a real Supabase setup, role claims would be in the user's JWT metadata
-      const user = data.user;
-      let role = ROLES.TEACHER; // Default fallback
-      
-      if (email.includes("admin")) role = ROLES.ADMIN;
-      if (email.includes("owner") || email.includes("super")) role = ROLES.SUPERADMIN;
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (!error && data?.user) {
+          const user = data.user;
+          let role = ROLES.TEACHER;
+          if (email.includes("admin")) role = ROLES.ADMIN;
+          if (email.includes("owner") || email.includes("super")) role = ROLES.SUPERADMIN;
 
-      const session = {
-        token: data.session?.access_token,
-        email: user.email,
-        role,
-        name: user.user_metadata?.full_name || user.email.split("@")[0]
-      };
-      
-      localStorage.setItem("maqra_session", JSON.stringify(session));
-      return session;
+          const session = {
+            token: data.session?.access_token,
+            email: user.email,
+            role,
+            name: user.user_metadata?.full_name || user.email.split("@")[0]
+          };
+          
+          localStorage.setItem("maqra_session", JSON.stringify(session));
+          return session;
+        }
+      } catch (err) {
+        console.warn("Supabase Auth failed, falling back to local credentials mode.", err.message);
+      }
     }
 
     // --- Local Mode ---
