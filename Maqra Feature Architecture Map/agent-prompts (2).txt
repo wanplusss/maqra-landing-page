@@ -1,0 +1,82 @@
+# Recode Agent Prompts
+
+## Maqra Grid Domain Model
+Implement the Maqra grid domain model. Create MaqraGrid.js that accepts an array of statuses for 604 pages and generates the grid data with juzuk, surah, status colors, progress %, and current frontier. Use pageMapping.js to map page numbers to juzuk and surah. Ensure performance for real-time updates. Export the main class and utility functions.
+
+## Maqra Grid Service
+Implement MaqraGridService that uses MaqraGrid domain and TasmikRepository. Provide methods: getGridForStudent(studentId) -> grid, updatePageStatus(studentId, page, status, tasmikRecord) -> updated grid. Ensure optimistic updates and recomputation.
+
+## Student Repository
+Create a StudentRepository with methods: getById, searchByName, listAll, create, update, delete. Use a generic database adapter. Return typed objects as defined in types.js.
+
+## Tasmik Repository
+Implement TasmikRepository: saveRecord(record), getRecordsForStudent(studentId), getRecordByPage(studentId, page), getRecentActivity(studentId, limit). Ensure indexing on studentId and date for performance.
+
+## Teacher Repository
+Create TeacherRepository with standard CRUD and a findByEmail method for login. Store hashed passwords; integrate with auth service.
+
+## School Repository
+Implement SchoolRepository with getProfile and updateProfile methods. The repository enforces single school record per tenant.
+
+## Authentication Service
+Implement authService with login (validates against TeacherRepository), token generation, and middleware that checks roles. Use JWT. Export roles constant: { PARENT: 'parent', TEACHER: 'teacher', ADMIN: 'admin' }. The middleware should extract user from token and attach to request.
+
+## Parent Facade
+Build the Parent Facade with React components (or framework-agnostic). StudentLookup accepts ID, validates via StudentRepository, then opens ParentDashboard. Dashboard shows stat cards, MaqraGrid (using MaqraGridService for the specific student), activity log (TasmikRepository.getRecentActivity), and khatam prediction (from AnalyticsService). CellPopover onclick shows detailed tasmik record. Sub-pages: Analitik uses AnalyticsService, ProfilAnak shows student info + status distribution bars, ProgressGrid with filter chips, HistoryLog sortable table. All read-only.
+
+## Teacher Facade
+Create Teacher Facade. Login uses authService.login, then redirect to StudentList (searchable, with stat cards from aggregated student data). Clicking a student opens StudentDashboard with editable MaqraGrid (using MaqraGridService), khatam prediction, and TasmicLog. When a grid cell is clicked, open UpdateModal: select status from predefined list and optionally add tasmik details (category, grade, ulasan, masalah, cadangan). On submit, call MaqraGridService.updatePageStatus which updates grid and saves tasmik record. Show confirmation toast. Use Teacher role auth middleware.
+
+## Admin Facade
+Build Admin Facade. Login uses Admin role. StudentManagement: table with search, inline edit/delete triggering StudentRepository methods, with confirm modals and success/error toasts. SchoolEditor: form to edit school fields (image upload for QR); uses SchoolRepository.updateProfile; show live-publish note toggle. TeacherManagement: grid of teacher accounts; add form (email, password) and delete confirmation; calls TeacherRepository. All protected with admin role middleware.
+
+## Analytics Service
+Implement AnalyticsService with three methods: 1) predictKhatam(studentId) — calculates pages memorized per day from TasmikRepository, projects date to complete 604. Returns SVG data points for progress vs projection (dashed). 2) getTargetVsAchieved(studentId) — returns progress ring %, 6-month bar chart data against 15 pages/month, and yearly juz target completion. 3) getMurajaahPlan(studentId) — scores each juzuk's memory strength based on recency and frequency of murajaah marks; decay function over time; returns sorted list weakest first with 'mark revised' capability (integration with TasmikRepository to update). Use pageMapping for juzuk boundaries.
+
+## School Page Facade
+Build SchoolLanding component that fetches school profile from SchoolRepository.getProfile. Display school details, stats. DonationCard shows QR image (uploaded by admin) and static bank account info. Minimal styling.
+
+## Tweaks Strategy
+Implement TweaksStrategy using React Context. tweaksStrategies defines available accent colors, fonts, densities. TweaksPanel renders controls; changes update context and persist to localStorage. Apply changes via CSS custom properties on root, and toggling dark mode class. Ensure grid density is adjustable (pass to MaqraGrid via props/context).
+
+## Teacher Tasmik Queue
+Implement TasmikQueueService that accepts a teacherId (or all students) and returns an array of {studentId, page, juzNumber, priorityScore, lastTasmikDate}. Use existing TasmikRepository.getRecentActivity to get latest tasmik per student, then call AnalyticsService.getDecayScores to obtain murajaah strength. Sort by ascending strength (weakest first). Build a React component TasmikQueue that renders the list with student name, page, and colour-coded priority. Add it to the teacher dashboard. Reuse existing student-repository for student names.
+
+## Teacher Class-level View
+Build ClassViewService that accepts a class identifier (e.g. 'Tahun 4') and fetches all students of that class via StudentRepository.findByClass. For each student, retrieve their MaqraGrid via MaqraGridService.getGridForStudent, compute total pages memorised and last-month pace. Compare against yearly juz target from AnalyticsService.getYearlyTarget. Return a ranking list with ahead/behind status. Create a React heatmap component ClassView showing students on rows, juz columns coloured by completion percentage, with sorting and filtering. Integrate into teacher dashboard navigation.
+
+## Parent Slip Prestasi (Report Card)
+Create SlipPrestasiService.js that exports generatePdf(studentId). Use the PDF generation library already configured (e.g. puppeteer or jspdf). Fetch student profile via StudentRepository.findById, recent tasmik records via TasmikRepository.getRecentActivity, progress ring and khatam prediction from AnalyticsService, and grid summary from MaqraGridService.getGridForStudent. Assemble into a template defined in slipPrestasiTemplate.js with school branding, progress bar, and status breakdown. Return a downloadable PDF buffer. Add a ‘Cetak Slip Prestasi’ button in the parent dashboard subpage (ProfilAnak or Analitik).
+
+## Parent Peer Context
+Build PeerContextService.js with method getPeerAverage(studentId). Determine the student’s class via StudentRepository.findById or from parent context. Fetch all students in that class via StudentRepository.findByClass. For each classmate, call MaqraGridService.getGridForStudent and use AnalyticsService.getPace to compute pages per month. Compute the mean. Return an object { studentPace, classAverage, comparisonText }. Integrate into the parent Analitik page near the pace display.
+
+## Admin Sekolah Dashboard
+Create DashboardService.js that fetches all students via StudentRepository.listAll, then uses MaqraGridService.getGridSummaries to compute total juzuk, and AnalyticsService.batchCheckTargets to classify on-track/behind. Use TasmikRepository.getMonthlyThroughput (you will need to implement this aggregation) to get pages added in the last 30 days. Build a React component SekolahDashboard with summary cards, a progress chart, and a quick list of behind students. Add to the admin portal navigation.
+
+## Pengumuman Repository
+Implement PengumumanRepository with methods create(announcement), getAllActive(), delete(id). Use the existing database connection (same as other repositories). Define types in types.js. Write validation that title and message are required.
+
+## Pengumuman Service
+Build PengumumanService.js exporting createAnnouncement(title, message, creatorId) and getActiveAnnouncements(). Use PengumumanRepository.create with expiration (default 30 days). Use requireRole('admin') middleware for create/delete. Provide getActiveAnnouncements that filters out expired entries. Wire into admin-facade and school-page-facade.
+
+## Sijil Service
+Implement SijilService.js with method issueCertificate(studentId, milestoneType). Fetch student name and school details. Use a PDF generation library (same as slip prestasi) and sijilTemplate.js to render an official-looking certificate. Return a download URL or buffer. Integrate milestone detection: when teacher updates a page to completed and the new total reaches a juzuk boundary or khatam, call this service from teacher-facade or admin-facade and offer the certificate as a download in the UI.
+
+## Responsive Layout Strategy
+Implement a responsive layout strategy that applies mobile-first transformations to all facades. Use a context provider to detect viewport size via window.matchMedia('(max-width: 480px)'). Provide hooks to toggle sidebar collapse, stack card components, and adjust the maqra grid columns (e.g., 10->4->2). Import useTweaks from tweaksStrategy to respect user's density and dark mode settings. Apply responsive classes to parent-facade, teacher-facade, admin-facade, and school-page-facade by wrapping their root components with a ResponsiveProvider. Ensure no horizontal scrollbars and touch-friendly tap targets.
+
+## Super Admin Dashboard (Multi-tenant)
+Create a super-admin facade at src/features/superadmin/. Implement SuperAdminLogin using authService to authenticate with role='superadmin'. Build SuperAdminDashboard that, on mount, calls schoolRepository.getAllSchools() (add get all method to SchoolRepository), then for each school fetch aggregated stats via getSchoolDashboardData(schoolId) (modify admin-sekolah-dashboard to accept schoolId parameter). Display a table with school names, student counts, total pages memorised, average pace, and on-track percentage. Add a drill-down to SuperAdminSchoolDetail that renders the admin-sekolah-dashboard for that school. Ensure role-based access via authMiddleware.
+
+## Individual Student Target Service
+Create a StudentTargetService that manages per‑student monthly page targets. Add a new collection/table 'student_targets' (fields: studentId, pagesPerMonth, setBy, updatedAt) via targetRepository. Expose methods: getTarget(studentId) (returns pagesPerMonth or null) and setTarget(studentId, pagesPerMonth, userId). Protect setTarget with authMiddleware.requireRole(['teacher','admin']). Modify analytics-service's calculateTargetProgress to accept an optional target parameter; if not provided, call studentTargetService.getTarget(studentId), falling back to 15. Integrate the target input form into teacher-facade's student detail view and admin-facade's student editor. Update parent-facade's analytics view to reflect the custom target.
+
+## Supabase Backend Integration
+You are integrating Supabase as the backend for the Quran memorization tracking app. Implement the following steps:
+- Install @supabase/supabase-js and create a Supabase client in src/backend/supabase/supabaseClient.js using environment variables SUPABASE_URL and SUPABASE_ANON_KEY. Export the configured client.
+- In src/backend/supabase/supabaseAdapter.js, write a set of helper functions for each entity (students, tasmik_records, teachers, schools, pengumuman). Each function should wrap the Supabase client methods (e.g., supabase.from('table').select(), .insert(), .update(), .delete()) and return normalized data. Ensure they match the existing repository query patterns found in files like src/features/student/repository/StudentRepository.js and src/features/tasmik/repository/TasmikRepository.js.
+- Update all repository files (StudentRepository, TasmikRepository, TeacherRepository, SchoolRepository, PengumumanRepository) to import and use the adapter functions instead of their current database drivers.
+- Configure Row‑Level Security (RLS) policies in the Supabase project to enforce multi‑tenant data isolation (e.g., each school's teachers can only access their own students’ records).
+- Modify the authentication service (src/features/auth/authService.js) to use Supabase Auth for login and token validation: replace existing login logic with supabase.auth.signInWithPassword, and adjust the auth middleware (src/features/auth/authMiddleware.js) to verify the Supabase‑issued JWT.
+- Test all CRUD operations and authentication flow to ensure compatibility with the existing frontend facades and services.

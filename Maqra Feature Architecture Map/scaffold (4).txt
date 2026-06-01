@@ -1,0 +1,197 @@
+# Recode Folder Scaffold
+
+## Maqra Grid Domain Model
+```
+src/features/maqra/domain/
+  MaqraGrid.js
+  pageMapping.js
+  statusColors.js
+```
+
+## Maqra Grid Service
+```
+src/features/maqra/service/
+  MaqraGridService.js
+```
+
+## Student Repository
+```
+src/features/student/repository/
+  StudentRepository.js
+  types.js
+```
+
+## Tasmik Repository
+```
+src/features/tasmik/repository/
+  TasmikRepository.js
+  types.js
+```
+
+## Teacher Repository
+```
+src/features/teacher/repository/
+  TeacherRepository.js
+  types.js
+```
+
+## School Repository
+```
+src/features/school/repository/
+  SchoolRepository.js
+  types.js
+```
+
+## Authentication Service
+```
+src/features/auth/
+  authService.js
+  authMiddleware.js
+  roles.js
+```
+
+## Parent Facade
+```
+src/features/parent/
+  ParentDashboard.js
+  StudentLookup.js
+  GridView.js
+  CellPopover.js
+  SubPages/
+    Analitik.js
+    ProfilAnak.js
+    ProgressGrid.js
+    HistoryLog.js
+```
+
+## Teacher Facade
+```
+src/features/teacher/
+  TeacherLogin.js
+  StudentList.js
+  StudentDashboard.js
+  UpdateModal.js
+  TasmicLog.js
+```
+
+## Admin Facade
+```
+src/features/admin/
+  AdminLogin.js
+  StudentManagement.js
+  SchoolEditor.js
+  TeacherManagement.js
+```
+
+## Analytics Service
+```
+src/features/analytics/
+  service/
+    AnalyticsService.js
+    prediction.js
+    targetTracker.js
+    murajaahPlan.js
+```
+
+## School Page Facade
+```
+src/features/school/
+  public/
+    SchoolLanding.js
+    DonationCard.js
+```
+
+## Tweaks Strategy
+```
+src/features/tweaks/
+  tweaksContext.js
+  tweaksStrategies.js
+  TweaksPanel.js
+```
+
+## Teacher Tasmik Queue
+```
+src/features/teacher/
+  TasmikQueue.js
+  TasmikQueueService.js
+```
+
+## Teacher Class-level View
+```
+src/features/teacher/
+  ClassView.js
+  ClassViewService.js
+```
+
+## Parent Slip Prestasi (Report Card)
+```
+src/features/parent/
+  SlipPrestasiService.js
+  slipPrestasiTemplate.js
+```
+
+## Parent Peer Context
+```
+src/features/parent/
+  PeerContextService.js
+```
+
+## Admin Sekolah Dashboard
+```
+src/features/admin/
+  SekolahDashboard.js
+  DashboardService.js
+```
+
+## Pengumuman Repository
+```
+src/features/pengumuman/repository/
+  PengumumanRepository.js
+  types.js
+```
+
+## Pengumuman Service
+```
+src/features/pengumuman/service/
+  PengumumanService.js
+```
+
+## Sijil Service
+```
+src/features/sijil/
+  SijilService.js
+  sijilTemplate.js
+```
+
+## Responsive Layout Strategy
+```
+src/features/responsive/
+  responsiveStrategy.js
+  responsiveContext.js
+  useResponsive.js
+```
+
+## Super Admin Dashboard (Multi-tenant)
+```
+src/features/superadmin/
+  SuperAdminLogin.js
+  SuperAdminDashboard.js
+  SuperAdminSchoolDetail.js
+  superAdminService.js
+```
+
+## Individual Student Target Service
+```
+src/features/student/target/
+  StudentTargetService.js
+  targetRepository.js
+  targetTypes.js
+```
+
+## Supabase Backend Integration
+```
+src/backend/supabase/
+  supabaseClient.js
+  supabaseAdapter.js
+  config.js
+```

@@ -1,0 +1,280 @@
+import { supabase } from "./supabaseClient.js";
+import { IS_SUPABASE_CONFIGURED } from "./config.js";
+
+// Helper to check if Supabase is active
+const checkActive = () => {
+  if (!IS_SUPABASE_CONFIGURED || !supabase) {
+    throw new Error("Supabase is not configured. Please supply VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your env.");
+  }
+};
+
+export const supabaseAdapter = {
+  // ---- STUDENTS ----
+  async getStudentById(id) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async listAllStudents() {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async searchStudentsByName(query) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .ilike("name", `%${query}%`);
+    if (error) throw error;
+    return data;
+  },
+
+  async findStudentsByClass(className) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .select("*")
+      .eq("kelas", className);
+    if (error) throw error;
+    return data;
+  },
+
+  async createStudent(student) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .insert([student])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateStudent(id, updates) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteStudent(id) {
+    checkActive();
+    const { error } = await supabase
+      .from("students")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return true;
+  },
+
+  // ---- TASMIK RECORDS ----
+  async saveTasmikRecord(record) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("tasmik_records")
+      .insert([record])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async getTasmikRecordsForStudent(studentId) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("tasmik_records")
+      .select("*")
+      .eq("studentId", studentId)
+      .order("date", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async getTasmikRecordByPage(studentId, page) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("tasmik_records")
+      .select("*")
+      .eq("studentId", studentId)
+      .eq("to", page)
+      .order("date", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async getRecentTasmikActivity(studentId, limit = 10) {
+    checkActive();
+    let query = supabase
+      .from("tasmik_records")
+      .select("*")
+      .order("date", { ascending: false })
+      .limit(limit);
+    if (studentId) {
+      query = query.eq("studentId", studentId);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getMonthlyTasmikThroughput() {
+    checkActive();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const { data, error } = await supabase
+      .from("tasmik_records")
+      .select("*")
+      .gte("date", thirtyDaysAgo.toISOString());
+    if (error) throw error;
+    return data;
+  },
+
+  // ---- TEACHERS ----
+  async getTeacherByEmail(email) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("teachers")
+      .select("*")
+      .eq("email", email)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async listAllTeachers() {
+    checkActive();
+    const { data, error } = await supabase
+      .from("teachers")
+      .select("*")
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async createTeacher(teacher) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("teachers")
+      .insert([teacher])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteTeacher(id) {
+    checkActive();
+    const { error } = await supabase
+      .from("teachers")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return true;
+  },
+
+  // ---- SCHOOLS ----
+  async getSchoolProfile(slug = "al-furqan") {
+    checkActive();
+    const { data, error } = await supabase
+      .from("schools")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async listAllSchools() {
+    checkActive();
+    const { data, error } = await supabase
+      .from("schools")
+      .select("*")
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async updateSchoolProfile(slug, updates) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("schools")
+      .update(updates)
+      .eq("slug", slug)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  // ---- ANNOUNCEMENTS ----
+  async createAnnouncement(announcement) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("announcements")
+      .insert([announcement])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async listActiveAnnouncements() {
+    checkActive();
+    const { data, error } = await supabase
+      .from("announcements")
+      .select("*")
+      .order("date", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteAnnouncement(id) {
+    checkActive();
+    const { error } = await supabase
+      .from("announcements")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return true;
+  },
+
+  // ---- STUDENT TARGETS ----
+  async getStudentTarget(studentId) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("student_targets")
+      .select("*")
+      .eq("studentId", studentId)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? data.pagesPerMonth : null;
+  },
+
+  async setStudentTarget(studentId, pagesPerMonth) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("student_targets")
+      .upsert({ studentId, pagesPerMonth, updatedAt: new Date().toISOString() })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+};

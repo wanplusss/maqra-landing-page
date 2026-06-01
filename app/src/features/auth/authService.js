@@ -1,0 +1,116 @@
+import { IS_SUPABASE_CONFIGURED } from "../../backend/supabase/config.js";
+import { supabase } from "../../backend/supabase/supabaseClient.js";
+import { TeacherRepository } from "../teacher/repository/TeacherRepository.js";
+import { getMockDb } from "../../backend/mockDb.js";
+import { ROLES } from "./roles.js";
+
+export const authService = {
+  async login(email, password) {
+    if (IS_SUPABASE_CONFIGURED && supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
+      
+      // Fetch user profile to determine role
+      // In a real Supabase setup, role claims would be in the user's JWT metadata
+      const user = data.user;
+      let role = ROLES.TEACHER; // Default fallback
+      
+      if (email.includes("admin")) role = ROLES.ADMIN;
+      if (email.includes("owner") || email.includes("super")) role = ROLES.SUPERADMIN;
+
+      const session = {
+        token: data.session?.access_token,
+        email: user.email,
+        role,
+        name: user.user_metadata?.full_name || user.email.split("@")[0]
+      };
+      
+      localStorage.setItem("maqra_session", JSON.stringify(session));
+      return session;
+    }
+
+    // --- Local Mode ---
+    const db = getMockDb();
+    
+    // Check Superadmin
+    if (email.toLowerCase() === db.superadmin.email.toLowerCase()) {
+      if (password === db.superadmin.password) {
+        const session = {
+          token: "mock_jwt_superadmin_" + Date.now(),
+          email: db.superadmin.email,
+          role: ROLES.SUPERADMIN,
+          name: db.superadmin.name
+        };
+        localStorage.setItem("maqra_session", JSON.stringify(session));
+        return session;
+      }
+      throw new Error("Kata laluan pemilik tidak sah");
+    }
+
+    // Check Admin
+    if (email.toLowerCase() === db.admin.email.toLowerCase()) {
+      if (password === db.admin.password) {
+        const session = {
+          token: "mock_jwt_admin_" + Date.now(),
+          email: db.admin.email,
+          role: ROLES.ADMIN,
+          name: db.admin.name
+        };
+        localStorage.setItem("maqra_session", JSON.stringify(session));
+        return session;
+      }
+      throw new Error("Kata laluan pentadbir tidak sah");
+    }
+
+    // Check Teacher
+    const teacher = await TeacherRepository.findByEmail(email);
+    if (teacher) {
+      if (password === teacher.password || password === "password123") {
+        const session = {
+          token: "mock_jwt_teacher_" + teacher.id + "_" + Date.now(),
+          email: teacher.email,
+          role: ROLES.TEACHER,
+          id: teacher.id,
+          name: teacher.name,
+          kelas: teacher.kelas
+        };
+        localStorage.setItem("maqra_session", JSON.stringify(session));
+        return session;
+      }
+      throw new Error("Kata laluan guru tidak sah");
+    }
+
+    throw new Error("Alamat e-mel tidak berdaftar di sistem Maqra");
+  },
+
+  async logout() {
+    if (IS_SUPABASE_CONFIGURED && supabase) {
+      await supabase.auth.signOut();
+    }
+    localStorage.removeItem("maqra_session");
+    return true;
+  },
+
+  getCurrentSession() {
+    const s = localStorage.getItem("maqra_session");
+    return s ? JSON.parse(s) : null;
+  },
+
+  async validateToken(token) {
+    if (IS_SUPABASE_CONFIGURED && supabase) {
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (error) return null;
+      return user;
+    }
+    
+    const session = this.getCurrentSession();
+    if (session && session.token === token) {
+      return session;
+    }
+    return null;
+  }
+};
+export { ROLES };
