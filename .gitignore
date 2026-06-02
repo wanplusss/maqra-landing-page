@@ -20,6 +20,9 @@ logs/
 **/logs/
 **/*.log
 
+# Git worktrees
+.worktrees/
+
 # OS & Editor files
 .DS_Store
 .vscode/
