@@ -895,3 +895,67 @@ You are integrating Supabase as the backend for the Quran memorization tracking 
 - **School Repository** → **Supabase Backend Integration** _(Uses Supabase client for school entity persistence)_
 - **Pengumuman Repository** → **Supabase Backend Integration** _(Uses Supabase client for announcement persistence)_
 - **Authentication Service** → **Supabase Backend Integration** _(Uses Supabase Auth for login and token validation)_
+
+---
+
+## Updates Log
+
+### 2026-06-02 — Live DB Audit & Bug Findings
+
+#### What Changed Since Blueprint
+
+**Multitenancy (school_slug scoping) — implemented, not in original blueprint**
+Every repository method now accepts a `schoolSlug` parameter and filters queries via `.eq("school_slug", schoolSlug)`. All tables (`students`, `teachers`, `tasmik_records`, `announcements`) carry a `school_slug` column. `SchoolRepository.getProfile(slug = "al-furqan")` is the entry point — App.jsx fetches the active school on mount and threads its `slug` into every downstream call.
+
+**DuitNow QR on SchoolLanding — implemented, not in blueprint**
+`SchoolLanding` now renders a `<DuitNowQR>` component (or `<FauxQR>` fallback) using `school.qrCode` (base64 stored in the `schools` table). Admin uploads QR image via `SchoolEditor`. The blueprint listed a static donation card; actual implementation supports live QR payloads.
+
+**`useRealtimeStudents` hook — implemented, not in blueprint**
+`src/backend/supabase/useRealtimeStudents.js` subscribes to `postgres_changes` on the `students` table (UPDATE events) and merges the updated row into App-level state via a callback. Declared in the Supabase Backend Integration node but now documented here as a live, wired feature.
+
+**Super Admin auth via `schools` table (Option A) — diverges from blueprint**
+Blueprint assumed Supabase Auth with role in JWT `app_metadata`. Actual implementation checks `admin_email` / `admin_password` columns directly in the `schools` table. Supabase Auth is used for teacher login; admin/superadmin fall back to plain-text credential match in the DB row. This is a known security debt — see Known Issues below.
+
+**`SekolahDashboard` owns `Pengumuman` management — not in blueprint**
+Admin's `SekolahDashboard` now includes a full announcement CRUD panel (post, edit, delete). Blueprint scoped announcement management only to "Admin Facade → Pengumuman Service" generically.
+
+---
+
+#### Known Bugs (found during audit, not yet fixed)
+
+**[CRITICAL] Announcements: `body`/`tag` vs DB columns `content`/`category`**
+- DB schema: columns `content`, `category`
+- Code throughout: field names `body`, `tag`
+- Affected files: `PengumumanService.js:13-15` (creates record with wrong field names → Supabase rejects insert), `SekolahDashboard.jsx:179,186` (reads `an.tag`, `an.body` → both `undefined`), `SchoolLanding.jsx:185,189` (same)
+- Effect: All 3 existing announcements in DB render with blank badge and blank body. Creating new announcements fails silently.
+- Fix needed: Rename DB columns OR rename all code references. Rename code to match DB (`body→content`, `tag→category`) touches fewer files.
+
+**[MINOR] `StudentRow` renders `st.target` as `undefined`**
+- `students` table has no `target` column; target lives in `student_targets` table (separate entity)
+- `StudentRepository.listAll()` does not join `student_targets`
+- `StudentRow` (line 31): renders `Sasaran: {st.target} m.s.` → "Sasaran:  m.s."
+- Fix needed: merge target into student list (join query or secondary fetch in App.jsx after `listAll`)
+
+**[MINOR] `StudentList` "Tasmik Hari Ini" stat card hardcoded date**
+- `StudentList.jsx:60`: `const today = new Date(2026, 4, 30)` — hardcoded May 30, 2026
+- Should be `new Date()` — stat always shows 0 since today ≠ May 30
+- Quick one-liner fix
+
+**[DATA] `student_targets` missing entry for STU00160**
+- 5 of 6 students have rows in `student_targets`; Aina Sofea (STU00160) has none
+- Analytics fallback to default 15 pages/month but target display will be blank
+
+---
+
+#### Current DB Schema (actual, as verified)
+
+| Table | Key columns |
+|-------|-------------|
+| `schools` | `slug` (PK), `name`, `city`, `plan`, `status`, `admin_email`, `admin_password`, `qrCode`, `bankName`, `bankAccount`, `donationTarget`, `donationRaised` |
+| `students` | `id` (PK), `name`, `sex`, `umur`, `kelas`, `frontier`, `statusMap` (jsonb), `school_slug` |
+| `teachers` | `name`, `kelas`, `school_slug` |
+| `tasmik_records` | per-student tasmik log, `school_slug` |
+| `announcements` | `id`, `title`, `content`, `category`, `date`, `school_slug` ← **note: NOT `body`/`tag`** |
+| `student_targets` | `studentId`, `pagesPerMonth`, `updatedAt` |
+
+RLS is currently disabled on all tables — flagged in CLAUDE.md as known security gap.

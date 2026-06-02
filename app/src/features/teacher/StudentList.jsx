@@ -57,7 +57,7 @@ export function StudentList({ students = [], onOpenStudent, schoolName }) {
   const activeTasmikToday = students.reduce((a, s) => a + (s.history?.filter((h) => {
     // Check if added today
     const recDate = new Date(h.date);
-    const today = new Date(2026, 4, 30);
+    const today = new Date();
     return recDate.toDateString() === today.toDateString();
   }).length || 0), 0);
 

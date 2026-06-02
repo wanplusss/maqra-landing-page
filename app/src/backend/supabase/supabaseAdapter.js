@@ -345,6 +345,13 @@ export const supabaseAdapter = {
   },
 
   // ---- STUDENT TARGETS ----
+  async listStudentTargets() {
+    checkActive();
+    const { data, error } = await supabase.from("student_targets").select("studentId, pagesPerMonth");
+    if (error) throw error;
+    return data || [];
+  },
+
   async getStudentTarget(studentId) {
     checkActive();
     const { data, error } = await supabase

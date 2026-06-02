@@ -28,6 +28,7 @@ import { MaqraGridService } from "./features/maqra/service/MaqraGridService.js";
 import { TasmikRepository } from "./features/tasmik/repository/TasmikRepository.js";
 import { authService } from "./features/auth/authService.js";
 import { useRealtimeStudents } from "./backend/supabase/useRealtimeStudents.js";
+import { targetRepository } from "./features/student/target/targetRepository.js";
 
 function Chrome({ persona, setPersona, path, slug }) {
   const personas = [
@@ -132,15 +133,20 @@ function MainAppContent() {
   useEffect(() => {
     async function load() {
       const sch = await SchoolRepository.getProfile();
-      const [studs, tea] = await Promise.all([
+      const [studs, tea, targets] = await Promise.all([
         StudentRepository.listAll(sch.slug),
         TeacherRepository.listAll(sch.slug),
+        targetRepository.listAll(),
       ]);
+
+      const targetMap = {};
+      targets.forEach((t) => { targetMap[t.studentId] = t.pagesPerMonth; });
 
       const resolvedStuds = studs.map((st) => {
         const grid = MaqraGridService.buildGrid(st);
         return {
           ...st,
+          target: targetMap[st.id] ?? 15,
           progress: grid.progressPercent,
           juzuk: grid.frontier > 0 ? Math.floor(grid.frontier / 20) + 1 : 1,
           surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,

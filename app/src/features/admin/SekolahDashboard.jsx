@@ -7,10 +7,10 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
   const [stats, setStats] = useState(null);
   const [anns, setAnns] = useState([]);
   const [annTitle, setAnnTitle] = useState("");
-  const [annBody, setAnnBody] = useState("");
-  const [annTag, setAnnTag] = useState("Peperiksaan");
+  const [annContent, setAnnContent] = useState("");
+  const [annCategory, setAnnCategory] = useState("Peperiksaan");
   const [posting, setPosting] = useState(false);
-  const [editingAnn, setEditingAnn] = useState(null); // { id, title, body, tag }
+  const [editingAnn, setEditingAnn] = useState(null); // { id, title, content, category }
 
   const loadData = async () => {
     const data = await DashboardService.getSchoolDashboardData(schoolSlug);
@@ -27,13 +27,13 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
 
   const addAnnouncement = async (e) => {
     if (e) e.preventDefault();
-    if (!annTitle.trim() || !annBody.trim()) return;
+    if (!annTitle.trim() || !annContent.trim()) return;
 
     setPosting(true);
     try {
-      await PengumumanService.createAnnouncement(annTitle, annBody, annTag, schoolSlug);
+      await PengumumanService.createAnnouncement(annTitle, annContent, annCategory, schoolSlug);
       setAnnTitle("");
-      setAnnBody("");
+      setAnnContent("");
       loadData();
     } catch (e) {
       alert("Gagal menyiarkan pengumuman: " + e.message);
@@ -52,7 +52,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
   const saveEditAnn = async (e) => {
     if (e) e.preventDefault();
     if (!editingAnn) return;
-    await PengumumanService.updateAnnouncement(editingAnn.id, editingAnn.title, editingAnn.body, editingAnn.tag);
+    await PengumumanService.updateAnnouncement(editingAnn.id, editingAnn.title, editingAnn.content, editingAnn.category);
     setEditingAnn(null);
     loadData();
   };
@@ -140,7 +140,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
                 <div className="field">
                   <label>Kategori / Tag</label>
-                  <select className="select" value={annTag} onChange={(e) => setAnnTag(e.target.value)}>
+                  <select className="select" value={annCategory} onChange={(e) => setAnnCategory(e.target.value)}>
                     <option value="Peperiksaan">Peperiksaan</option>
                     <option value="Majlis">Majlis</option>
                     <option value="Cuti">Cuti</option>
@@ -150,7 +150,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
               </div>
               <div className="field">
                 <label>Kandungan Pengumuman</label>
-                <textarea className="textarea" value={annBody} onChange={(e) => setAnnBody(e.target.value)} style={{ minHeight: 70 }} placeholder="Masukkan mesej kepada ibu bapa..." required />
+                <textarea className="textarea" value={annContent} onChange={(e) => setAnnContent(e.target.value)} style={{ minHeight: 70 }} placeholder="Masukkan mesej kepada ibu bapa..." required />
               </div>
               <button type="submit" className="btn btn-primary" style={{ justifyContent: "center" }} disabled={posting}>
                 {posting ? "Menyiar..." : "Siarkan Pengumuman"}
@@ -167,7 +167,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
                   {editingAnn?.id === an.id ? (
                     <form onSubmit={saveEditAnn} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <input className="input" style={{ fontSize: 13 }} value={editingAnn.title} onChange={(e) => setEditingAnn(p => ({ ...p, title: e.target.value }))} required />
-                      <textarea className="textarea" style={{ fontSize: 12.5, minHeight: 60 }} value={editingAnn.body} onChange={(e) => setEditingAnn(p => ({ ...p, body: e.target.value }))} required />
+                      <textarea className="textarea" style={{ fontSize: 12.5, minHeight: 60 }} value={editingAnn.content} onChange={(e) => setEditingAnn(p => ({ ...p, content: e.target.value }))} required />
                       <div style={{ display: "flex", gap: 6 }}>
                         <button type="submit" className="btn btn-sm btn-primary">Simpan</button>
                         <button type="button" className="btn btn-sm btn-ghost" onClick={() => setEditingAnn(null)}>Batal</button>
@@ -176,14 +176,14 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
                   ) : (
                     <>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                        <span className="badge badge-ok">{an.tag}</span>
+                        <span className="badge badge-ok">{an.category}</span>
                         <div style={{ display: "flex", gap: 4 }}>
-                          <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => setEditingAnn({ id: an.id, title: an.title, body: an.body, tag: an.tag })} title="Edit"><Icon name="edit" size={13} /></button>
+                          <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => setEditingAnn({ id: an.id, title: an.title, content: an.content, category: an.category })} title="Edit"><Icon name="edit" size={13} /></button>
                           <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => deleteAnnouncement(an.id)} title="Padam">✕</button>
                         </div>
                       </div>
                       <h4 style={{ margin: "0 0 4px", fontSize: 13.5, fontWeight: 700 }}>{an.title}</h4>
-                      <p style={{ margin: 0, fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.5 }}>{an.body}</p>
+                      <p style={{ margin: 0, fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.5 }}>{an.content}</p>
                     </>
                   )}
                 </div>

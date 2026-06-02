@@ -3,6 +3,14 @@ import { supabaseAdapter } from "../../../backend/supabase/supabaseAdapter.js";
 import { getMockDb, saveMockDb } from "../../../backend/mockDb.js";
 
 export const targetRepository = {
+  async listAll() {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.listStudentTargets();
+    }
+    const db = getMockDb();
+    return Object.entries(db.student_targets || {}).map(([studentId, pagesPerMonth]) => ({ studentId, pagesPerMonth }));
+  },
+
   async getTarget(studentId) {
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.getStudentTarget(studentId);
