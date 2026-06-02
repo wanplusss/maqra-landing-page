@@ -21,37 +21,35 @@ export const supabaseAdapter = {
     return data;
   },
 
-  async listAllStudents() {
+  async listAllStudents(schoolSlug) {
     checkActive();
-    const { data, error } = await supabase
-      .from("students")
-      .select("*")
-      .order("name", { ascending: true });
+    let q = supabase.from("students").select("*").order("name", { ascending: true });
+    if (schoolSlug) q = q.eq("school_slug", schoolSlug);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   },
 
-  async searchStudentsByName(query) {
+  async searchStudentsByName(query, schoolSlug) {
     checkActive();
-    const { data, error } = await supabase
-      .from("students")
-      .select("*")
-      .ilike("name", `%${query}%`);
+    let q = supabase.from("students").select("*").ilike("name", `%${query}%`);
+    if (schoolSlug) q = q.eq("school_slug", schoolSlug);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   },
 
-  async findStudentsByClass(className) {
+  async findStudentsByClass(className, schoolSlug) {
     checkActive();
-    const { data, error } = await supabase
-      .from("students")
-      .select("*")
-      .eq("kelas", className);
+    let q = supabase.from("students").select("*").eq("kelas", className);
+    if (schoolSlug) q = q.eq("school_slug", schoolSlug);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   },
 
   async createStudent(student) {
+    // student must include school_slug
     checkActive();
     const { data, error } = await supabase
       .from("students")
@@ -85,6 +83,7 @@ export const supabaseAdapter = {
   },
 
   async bulkCreateStudents(students) {
+    // each student must include school_slug
     checkActive();
     const { data, error } = await supabase
       .from("students")
@@ -168,17 +167,17 @@ export const supabaseAdapter = {
     return data;
   },
 
-  async listAllTeachers() {
+  async listAllTeachers(schoolSlug) {
     checkActive();
-    const { data, error } = await supabase
-      .from("teachers")
-      .select("*")
-      .order("name", { ascending: true });
+    let q = supabase.from("teachers").select("*").order("name", { ascending: true });
+    if (schoolSlug) q = q.eq("school_slug", schoolSlug);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   },
 
   async createTeacher(teacher) {
+    // teacher must include school_slug
     checkActive();
     const { data, error } = await supabase
       .from("teachers")
@@ -221,6 +220,17 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async createSchool(school) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("schools")
+      .insert([school])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   async updateSchoolProfile(slug, updates) {
     checkActive();
     const { data, error } = await supabase
@@ -233,8 +243,43 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async getSchoolStats() {
+    checkActive();
+    const { data: schools, error: schoolErr } = await supabase
+      .from("schools")
+      .select("*")
+      .order("name", { ascending: true });
+    if (schoolErr) throw schoolErr;
+
+    const { data: studentCounts, error: countErr } = await supabase
+      .from("students")
+      .select("school_slug");
+    if (countErr) throw countErr;
+
+    const { data: teacherCounts, error: tErr } = await supabase
+      .from("teachers")
+      .select("school_slug");
+    if (tErr) throw tErr;
+
+    const studentMap = studentCounts.reduce((acc, s) => {
+      acc[s.school_slug] = (acc[s.school_slug] || 0) + 1;
+      return acc;
+    }, {});
+    const teacherMap = teacherCounts.reduce((acc, t) => {
+      acc[t.school_slug] = (acc[t.school_slug] || 0) + 1;
+      return acc;
+    }, {});
+
+    return schools.map(sch => ({
+      ...sch,
+      students: studentMap[sch.slug] || 0,
+      teachers: teacherMap[sch.slug] || 0,
+    }));
+  },
+
   // ---- ANNOUNCEMENTS ----
   async createAnnouncement(announcement) {
+    // announcement must include school_slug
     checkActive();
     const { data, error } = await supabase
       .from("announcements")
@@ -245,12 +290,11 @@ export const supabaseAdapter = {
     return data;
   },
 
-  async listActiveAnnouncements() {
+  async listActiveAnnouncements(schoolSlug) {
     checkActive();
-    const { data, error } = await supabase
-      .from("announcements")
-      .select("*")
-      .order("date", { ascending: false });
+    let q = supabase.from("announcements").select("*").order("date", { ascending: false });
+    if (schoolSlug) q = q.eq("school_slug", schoolSlug);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   },

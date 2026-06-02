@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BulkImportService } from "./BulkImportService.js";
 import { Icon } from "../../../components/Shared.jsx";
 
-export function BulkImportModal({ isOpen, onClose, onRefresh }) {
+export function BulkImportModal({ isOpen, onClose, onRefresh, schoolSlug }) {
   const [fileType, setFileType] = useState("csv"); // 'csv' | 'json'
   const [rawText, setRawText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,7 @@ export function BulkImportModal({ isOpen, onClose, onRefresh }) {
     setSuccessCount(null);
 
     try {
-      const count = await BulkImportService.importData(rawText, fileType);
+      const count = await BulkImportService.importData(rawText, fileType, schoolSlug);
       setSuccessCount(count);
       setRawText("");
       onRefresh();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { SchoolRepository } from "../repository/SchoolRepository.js";
 import { PengumumanService } from "../../pengumuman/service/PengumumanService.js";
-import { Wordmark, Icon, FauxQR } from "../../../components/Shared.jsx";
+import { Wordmark, Icon, FauxQR, DuitNowQR } from "../../../components/Shared.jsx";
 
 export function SchoolLanding({ onEnterLookup }) {
   const [school, setSchool] = useState(null);
@@ -138,7 +138,7 @@ export function SchoolLanding({ onEnterLookup }) {
             Salurkan sumbangan wakaf pembangunan maahad secara pantas melalui imbasan kod QR bank.
           </p>
           <div style={{ display: "grid", placeItems: "center", padding: 16, background: "var(--surface-2)", borderRadius: 14, border: "1px solid var(--line)" }}>
-            <FauxQR size={150} seed={4} />
+            <DuitNowQR payload={school.qrCode} size={150} fallbackSeed={4} />
           </div>
           <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9 }}>
             {[

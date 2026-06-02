@@ -38,7 +38,7 @@ export class StudentImportBuilder {
 
 // Service Coordinator
 export const BulkImportService = {
-  async importData(rawContent, fileType) {
+  async importData(rawContent, fileType, schoolSlug) {
     let strategy;
     const type = fileType.toLowerCase();
     
@@ -73,7 +73,9 @@ export const BulkImportService = {
 
     // Call bulk repository persistence
     if (validStudents.length > 0) {
-      await StudentRepository.bulkCreate(validStudents);
+      await StudentRepository.bulkCreate(
+        schoolSlug ? validStudents.map(s => ({ ...s, school_slug: schoolSlug })) : validStudents
+      );
     }
 
     return validStudents.length;

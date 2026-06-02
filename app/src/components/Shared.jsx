@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import QRCode from "qrcode";
 import { STATUS_MAP } from "../features/maqra/domain/statusColors.js";
 
 /* ---- responsive hook ---- */
@@ -296,5 +297,46 @@ export function FauxQR({ size = 132, seed = 7 }) {
       <rect width={size} height={size} fill="#fff" />
       {grid.map((v, i) => v ? <rect key={i} x={(i % n) * c} y={Math.floor(i / n) * c} width={c} height={c} fill="#16261d" /> : null)}
     </svg>
+  );
+}
+
+/* ---- DuitNow QR — renders real scannable QR from EMV payload ---- */
+export function DuitNowQR({ payload, size = 150, fallbackSeed = 7 }) {
+  const canvasRef = useRef(null);
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#16a34a";
+
+  useEffect(() => {
+    if (!payload || !canvasRef.current) return;
+    QRCode.toCanvas(canvasRef.current, payload, {
+      width: size,
+      margin: 1,
+      color: { dark: "#16261d", light: "#ffffff" },
+      errorCorrectionLevel: "H",
+    }).catch(() => {});
+  }, [payload, size, accentColor]);
+
+  if (!payload) return <FauxQR size={size} seed={fallbackSeed} />;
+
+  return (
+    <div style={{ position: "relative", display: "inline-block", borderRadius: 10, overflow: "hidden" }}>
+      <canvas ref={canvasRef} style={{ display: "block" }} />
+      {/* DuitNow center badge */}
+      <div style={{
+        position: "absolute",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: size * 0.22, height: size * 0.22,
+        background: "#fff",
+        borderRadius: 6,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+        overflow: "hidden",
+      }}>
+        <svg viewBox="0 0 32 32" width={size * 0.18} height={size * 0.18}>
+          <rect width="32" height="32" rx="5" fill="#E31837" />
+          <text x="16" y="22" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">DN</text>
+        </svg>
+      </div>
+    </div>
   );
 }

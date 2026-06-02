@@ -11,32 +11,36 @@ export const StudentRepository = {
     return db.students.find((s) => s.id === id) || null;
   },
 
-  async listAll() {
+  async listAll(schoolSlug) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.listAllStudents();
+      return await supabaseAdapter.listAllStudents(schoolSlug);
     }
     const db = getMockDb();
-    return [...db.students];
+    const all = [...db.students];
+    return schoolSlug ? all.filter(s => s.school_slug === schoolSlug) : all;
   },
 
-  async searchByName(query) {
+  async searchByName(query, schoolSlug) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.searchStudentsByName(query);
+      return await supabaseAdapter.searchStudentsByName(query, schoolSlug);
     }
     const db = getMockDb();
     const q = query.toLowerCase();
-    return db.students.filter((s) => s.name.toLowerCase().includes(q));
+    const results = db.students.filter(s => s.name.toLowerCase().includes(q));
+    return schoolSlug ? results.filter(s => s.school_slug === schoolSlug) : results;
   },
 
-  async findByClass(className) {
+  async findByClass(className, schoolSlug) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.findStudentsByClass(className);
+      return await supabaseAdapter.findStudentsByClass(className, schoolSlug);
     }
     const db = getMockDb();
-    return db.students.filter((s) => s.kelas === className);
+    const results = db.students.filter(s => s.kelas === className);
+    return schoolSlug ? results.filter(s => s.school_slug === schoolSlug) : results;
   },
 
   async create(student) {
+    // student must include school_slug
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.createStudent(student);
     }
@@ -79,6 +83,7 @@ export const StudentRepository = {
   },
 
   async bulkCreate(students) {
+    // each student must include school_slug
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.bulkCreateStudents(students);
     }

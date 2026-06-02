@@ -4,6 +4,7 @@ import { getMockDb, saveMockDb } from "../../../backend/mockDb.js";
 
 export const PengumumanRepository = {
   async create(announcement) {
+    // announcement must include school_slug
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.createAnnouncement(announcement);
     }
@@ -18,12 +19,13 @@ export const PengumumanRepository = {
     return newAnn;
   },
 
-  async getAllActive() {
+  async getAllActive(schoolSlug) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.listActiveAnnouncements();
+      return await supabaseAdapter.listActiveAnnouncements(schoolSlug);
     }
     const db = getMockDb();
-    return [...db.announcements];
+    const all = [...db.announcements];
+    return schoolSlug ? all.filter(a => a.school_slug === schoolSlug) : all;
   },
 
   async delete(id) {

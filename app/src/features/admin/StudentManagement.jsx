@@ -3,7 +3,7 @@ import { StudentRepository } from "../student/repository/StudentRepository.js";
 import { Icon, Avatar } from "../../components/Shared.jsx";
 import { BulkImportModal } from "../student/import/BulkImportModal.jsx";
 
-export function StudentManagement({ students = [], onRefresh }) {
+export function StudentManagement({ students = [], schoolSlug, onRefresh }) {
   const [q, setQ] = useState("");
   const [modal, setModal] = useState(null); // 'add' | 'edit' | 'delete'
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -66,7 +66,8 @@ export function StudentManagement({ students = [], onRefresh }) {
         beginner,
         target: parseInt(target),
         frontier: 1,
-        statusMap: {}
+        statusMap: {},
+        school_slug: schoolSlug,
       });
     } else if (modal === "edit" && selectedStudent) {
       await StudentRepository.update(selectedStudent.id, {
@@ -243,10 +244,11 @@ export function StudentManagement({ students = [], onRefresh }) {
         </div>
       )}
 
-      <BulkImportModal 
-        isOpen={importOpen} 
-        onClose={() => setImportOpen(false)} 
-        onRefresh={onRefresh} 
+      <BulkImportModal
+        isOpen={importOpen}
+        onClose={() => setImportOpen(false)}
+        onRefresh={onRefresh}
+        schoolSlug={schoolSlug}
       />
     </div>
   );
