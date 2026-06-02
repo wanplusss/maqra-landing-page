@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { TweaksProvider, useTweaks } from "./features/tweaks/tweaksContext.jsx";
 import { ResponsiveProvider } from "./features/responsive/responsiveContext.jsx";
 import { TweaksPanel, TweakSection, TweakColor, TweakToggle, TweakSelect, TweakRadio } from "./features/tweaks/TweaksPanel.jsx";
@@ -114,22 +114,21 @@ function MainAppContent() {
   // Fetch basic lists
   useEffect(() => {
     async function load() {
-      const studs = await StudentRepository.listAll();
-      const tea = await TeacherRepository.listAll();
-      const sch = await SchoolRepository.getProfile();
-      
-      // Calculate dynamic progress percent per student
-      const resolvedStuds = [];
-      for (const st of studs) {
-        const grid = await MaqraGridService.getGridForStudent(st.id);
-        resolvedStuds.push({
+      const [studs, tea, sch] = await Promise.all([
+        StudentRepository.listAll(),
+        TeacherRepository.listAll(),
+        SchoolRepository.getProfile(),
+      ]);
+
+      const resolvedStuds = studs.map((st) => {
+        const grid = MaqraGridService.buildGrid(st);
+        return {
           ...st,
           progress: grid.progressPercent,
           juzuk: grid.frontier > 0 ? Math.floor(grid.frontier / 20) + 1 : 1,
           surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
-          history: await TasmikRepository.getRecordsForStudent(st.id)
-        });
-      }
+        };
+      });
 
       setStudents(resolvedStuds);
       setTeachers(tea);
@@ -174,10 +173,13 @@ function MainAppContent() {
         } : null
       );
       setTeacherUpdateCellPage(null);
-      
-      // Reload current student state
-      const updatedStudent = await StudentRepository.getById(teacherSelectedStudent.id);
-      const grid = await MaqraGridService.getGridForStudent(teacherSelectedStudent.id);
+
+      const [updatedStudent, grid, history] = await Promise.all([
+        StudentRepository.getById(teacherSelectedStudent.id),
+        MaqraGridService.getGridForStudent(teacherSelectedStudent.id),
+        TasmikRepository.getRecordsForStudent(teacherSelectedStudent.id),
+      ]);
+
       setTeacherSelectedStudent({
         ...updatedStudent,
         progress: grid.progressPercent,
@@ -186,6 +188,7 @@ function MainAppContent() {
         surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
         lastHafazan: grid.frontier > 0 ? grid.frontier : 1,
         lastHafazanSurah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+        history,
       });
 
       triggerRefresh();
@@ -295,11 +298,14 @@ function MainAppContent() {
                 <main className="main">
                   <div className="main-wide">
                     {teacherView === "murid" && (
-                      <StudentList 
-                        students={students} 
+                      <StudentList
+                        students={students}
                         onOpenStudent={async (sid) => {
-                          const s = await StudentRepository.getById(sid);
-                          const grid = await MaqraGridService.getGridForStudent(sid);
+                          const [s, grid, history] = await Promise.all([
+                            StudentRepository.getById(sid),
+                            MaqraGridService.getGridForStudent(sid),
+                            TasmikRepository.getRecordsForStudent(sid),
+                          ]);
                           setTeacherSelectedStudent({
                             ...s,
                             progress: grid.progressPercent,
@@ -308,16 +314,20 @@ function MainAppContent() {
                             surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
                             lastHafazan: grid.frontier > 0 ? grid.frontier : 1,
                             lastHafazanSurah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+                            history,
                           });
                         }}
                         schoolName={school.name}
                       />
                     )}
                     {teacherView === "tasmik" && (
-                      <TasmikQueue 
+                      <TasmikQueue
                         onOpenStudent={async (sid) => {
-                          const s = await StudentRepository.getById(sid);
-                          const grid = await MaqraGridService.getGridForStudent(sid);
+                          const [s, grid, history] = await Promise.all([
+                            StudentRepository.getById(sid),
+                            MaqraGridService.getGridForStudent(sid),
+                            TasmikRepository.getRecordsForStudent(sid),
+                          ]);
                           setTeacherSelectedStudent({
                             ...s,
                             progress: grid.progressPercent,
@@ -326,15 +336,19 @@ function MainAppContent() {
                             surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
                             lastHafazan: grid.frontier > 0 ? grid.frontier : 1,
                             lastHafazanSurah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+                            history,
                           });
                         }}
                       />
                     )}
                     {teacherView === "kohort" && (
-                      <ClassView 
+                      <ClassView
                         onOpenStudent={async (sid) => {
-                          const s = await StudentRepository.getById(sid);
-                          const grid = await MaqraGridService.getGridForStudent(sid);
+                          const [s, grid, history] = await Promise.all([
+                            StudentRepository.getById(sid),
+                            MaqraGridService.getGridForStudent(sid),
+                            TasmikRepository.getRecordsForStudent(sid),
+                          ]);
                           setTeacherSelectedStudent({
                             ...s,
                             progress: grid.progressPercent,
@@ -343,6 +357,7 @@ function MainAppContent() {
                             surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
                             lastHafazan: grid.frontier > 0 ? grid.frontier : 1,
                             lastHafazanSurah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+                            history,
                           });
                         }}
                       />
