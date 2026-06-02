@@ -4,8 +4,8 @@ import { PredictionService } from "../analytics/service/prediction.js";
 import { getJuzukPages } from "../maqra/domain/pageMapping.js";
 
 export const ClassViewService = {
-  async getClassCohortHeatmap(className) {
-    const students = await StudentRepository.findByClass(className);
+  async getClassCohortHeatmap(className, schoolSlug) {
+    const students = await StudentRepository.findByClass(className, schoolSlug);
     const heatmap = [];
 
     const memorizedKeys = ["hafazan", "talaqqi", "murajaah", "syahadah", "iqra", "tilawah"];

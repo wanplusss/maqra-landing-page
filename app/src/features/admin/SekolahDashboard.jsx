@@ -3,7 +3,7 @@ import { DashboardService } from "./DashboardService.js";
 import { PengumumanService } from "../pengumuman/service/PengumumanService.js";
 import { Icon, StatCard } from "../../components/Shared.jsx";
 
-export function SekolahDashboard({ onOpenStudent }) {
+export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
   const [stats, setStats] = useState(null);
   const [anns, setAnns] = useState([]);
   const [annTitle, setAnnTitle] = useState("");
@@ -12,8 +12,8 @@ export function SekolahDashboard({ onOpenStudent }) {
   const [posting, setPosting] = useState(false);
 
   const loadData = async () => {
-    const data = await DashboardService.getSchoolDashboardData();
-    const activeAnns = await PengumumanService.getActiveAnnouncements();
+    const data = await DashboardService.getSchoolDashboardData(schoolSlug);
+    const activeAnns = await PengumumanService.getActiveAnnouncements(schoolSlug);
     
     setStats(data);
     setAnns(activeAnns);
@@ -30,7 +30,7 @@ export function SekolahDashboard({ onOpenStudent }) {
 
     setPosting(true);
     try {
-      await PengumumanService.createAnnouncement(annTitle, annBody, annTag);
+      await PengumumanService.createAnnouncement(annTitle, annBody, annTag, schoolSlug);
       setAnnTitle("");
       setAnnBody("");
       loadData();

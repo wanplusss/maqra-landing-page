@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { TasmikQueueService } from "./TasmikQueueService.js";
 import { Icon } from "../../components/Shared.jsx";
 
-export function TasmikQueue({ onOpenStudent }) {
+export function TasmikQueue({ onOpenStudent, schoolSlug }) {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const list = await TasmikQueueService.getTasmikQueue();
+        const list = await TasmikQueueService.getTasmikQueue(schoolSlug);
         setQueue(list);
       } catch (e) {
         console.error(e);

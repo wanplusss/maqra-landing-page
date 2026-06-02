@@ -3,8 +3,8 @@ import { TasmikRepository } from "../tasmik/repository/TasmikRepository.js";
 import { AnalyticsService } from "../analytics/service/AnalyticsService.js";
 
 export const TasmikQueueService = {
-  async getTasmikQueue() {
-    const students = await StudentRepository.listAll();
+  async getTasmikQueue(schoolSlug) {
+    const students = await StudentRepository.listAll(schoolSlug);
     const queue = [];
 
     for (const student of students) {

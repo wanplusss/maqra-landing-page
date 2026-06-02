@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ClassViewService } from "./ClassViewService.js";
 
-export function ClassView({ onOpenStudent }) {
+export function ClassView({ onOpenStudent, schoolSlug }) {
   const [className, setClassName] = useState("Tahun 4");
   const [cohortData, setCohortData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ export function ClassView({ onOpenStudent }) {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const list = await ClassViewService.getClassCohortHeatmap(className);
+      const list = await ClassViewService.getClassCohortHeatmap(className, schoolSlug);
       setCohortData(list);
       setLoading(false);
     }

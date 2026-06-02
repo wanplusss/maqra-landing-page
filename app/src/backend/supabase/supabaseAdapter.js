@@ -210,6 +210,17 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async getSchoolByAdminEmail(email) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("schools")
+      .select("*")
+      .eq("admin_email", email)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
   async listAllSchools() {
     checkActive();
     const { data, error } = await supabase

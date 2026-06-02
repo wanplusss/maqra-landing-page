@@ -334,6 +334,7 @@ function MainAppContent() {
                     )}
                     {teacherView === "tasmik" && (
                       <TasmikQueue
+                        schoolSlug={school.slug}
                         onOpenStudent={async (sid) => {
                           const [s, grid, history] = await Promise.all([
                             StudentRepository.getById(sid),
@@ -355,6 +356,7 @@ function MainAppContent() {
                     )}
                     {teacherView === "kohort" && (
                       <ClassView
+                        schoolSlug={school.slug}
                         onOpenStudent={async (sid) => {
                           const [s, grid, history] = await Promise.all([
                             StudentRepository.getById(sid),
@@ -406,7 +408,8 @@ function MainAppContent() {
                 <main className="main">
                   <div className="main-wide">
                     {adminView === "dash" && (
-                      <SekolahDashboard 
+                      <SekolahDashboard
+                        schoolSlug={school.slug}
                         onOpenStudent={() => {
                           alert("Pemerhatian data. Buka mod Guru untuk menyemak/tasmik terus!");
                         }}

@@ -2,8 +2,7 @@ import { PengumumanRepository } from "../repository/PengumumanRepository.js";
 import { requireRole } from "../../auth/authMiddleware.js";
 
 export const PengumumanService = {
-  async createAnnouncement(title, body, tag = "Pengumuman") {
-    // Enforce admin permission for creating announcements
+  async createAnnouncement(title, body, tag = "Pengumuman", schoolSlug) {
     requireRole(["admin", "superadmin"]);
 
     if (!title || !body) {
@@ -14,14 +13,15 @@ export const PengumumanService = {
       title,
       body,
       tag,
-      date: new Date().toISOString().split("T")[0]
+      date: new Date().toISOString().split("T")[0],
+      school_slug: schoolSlug,
     };
 
     return await PengumumanRepository.create(ann);
   },
 
-  async getActiveAnnouncements() {
-    return await PengumumanRepository.getAllActive();
+  async getActiveAnnouncements(schoolSlug) {
+    return await PengumumanRepository.getAllActive(schoolSlug);
   },
 
   async deleteAnnouncement(id) {

@@ -5,9 +5,9 @@ import { AnalyticsService } from "../analytics/service/AnalyticsService.js";
 import { MaqraGridService } from "../maqra/service/MaqraGridService.js";
 
 export const DashboardService = {
-  async getSchoolDashboardData() {
-    const students = await StudentRepository.listAll();
-    const teachers = await TeacherRepository.listAll();
+  async getSchoolDashboardData(schoolSlug) {
+    const students = await StudentRepository.listAll(schoolSlug);
+    const teachers = await TeacherRepository.listAll(schoolSlug);
     const throughputRecs = await TasmikRepository.getMonthlyThroughput();
 
     const totalStudents = students.length;
