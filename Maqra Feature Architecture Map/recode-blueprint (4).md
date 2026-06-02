@@ -394,11 +394,11 @@ Implement the Maqra grid domain model. Create MaqraGrid.js that accepts an array
 
 **Business Reason:** Orchestrates domain logic with data retrieval, enabling other modules to read and write progress without direct domain knowledge.
 
-**Data Flow:** Acts as an intermediary between the domain model and external consumers (facades). Fetches student's tasmik records from repository, constructs MaqraGrid instance, provides methods to compute tallies, update statuses, and retrieve grid state. Input: studentId; output: MaqraGrid with computed properties.
+**Data Flow:** Acts as an intermediary between the domain model and external consumers (facades). Reads `statusMap` directly from the student record (denormalized field updated on every tasmik save), constructs MaqraGrid instance, provides methods to compute tallies, update statuses, and retrieve grid state. `buildGrid(student)` accepts an already-fetched student object (sync, no DB call). `getGridForStudent(studentId)` fetches the student then delegates to `buildGrid`. Input: studentId or student object; output: MaqraGrid with computed properties.
 
 **Agent Prompt:**
 ```
-Implement MaqraGridService that uses MaqraGrid domain and TasmikRepository. Provide methods: getGridForStudent(studentId) -> grid, updatePageStatus(studentId, page, status, tasmikRecord) -> updated grid. Ensure optimistic updates and recomputation.
+Implement MaqraGridService that uses MaqraGrid domain. Provide: buildGrid(student) -> grid (sync, no DB); getGridForStudent(studentId) -> grid (fetches student then delegates to buildGrid); updatePageStatus(studentId, page, status, tasmikRecord) -> updated grid (writes statusMap + frontier back to student row, appends tasmik log record). TasmikRepository is used only for log writes, not for grid reconstruction.
 ```
 
 ### Student Repository
@@ -819,6 +819,7 @@ You are integrating Supabase as the backend for the Quran memorization tracking 
 - Configure Row‑Level Security (RLS) policies in the Supabase project to enforce multi‑tenant data isolation (e.g., each school's teachers can only access their own students’ records).
 - Modify the authentication service (src/features/auth/authService.js) to use Supabase Auth for login and token validation: replace existing login logic with supabase.auth.signInWithPassword, and adjust the auth middleware (src/features/auth/authMiddleware.js) to verify the Supabase‑issued JWT.
 - Test all CRUD operations and authentication flow to ensure compatibility with the existing frontend facades and services.
+- Implement realtime in `src/backend/supabase/useRealtimeStudents.js`: a React hook that subscribes to `postgres_changes` on the `students` table (UPDATE events) and calls a callback with the updated student row. Subscription helpers (`subscribeToStudents`, `unsubscribeFromStudents`) live in `supabaseAdapter.js`. Hook cleans up subscription on unmount.
 ```
 
 ---
@@ -826,7 +827,7 @@ You are integrating Supabase as the backend for the Quran memorization tracking 
 ## Dependencies Graph
 
 - **Maqra Grid Service** → **Maqra Grid Domain Model** _(uses domain model for grid logic and page mapping)_
-- **Maqra Grid Service** → **Tasmik Repository** _(fetches tasmik records to construct current grid state)_
+- **Maqra Grid Service** → **Tasmik Repository** _(writes tasmik log records on status update; does NOT read tasmik records for grid reconstruction — grid state is denormalized into student.statusMap)_
 - **Parent Facade** → **Maqra Grid Service** _(reads student grid progress via service)_
 - **Parent Facade** → **Student Repository** _(looks up student by ID)_
 - **Parent Facade** → **Tasmik Repository** _(fetches recent activity log)_
