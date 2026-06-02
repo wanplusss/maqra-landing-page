@@ -5,12 +5,16 @@ import { SijilService } from "../../sijil/SijilService.js";
 import { getJuzukFromPage } from "../domain/pageMapping.js";
 
 export const MaqraGridService = {
+  buildGrid(student) {
+    return new MaqraGrid(student.statusMap || {});
+  },
+
   async getGridForStudent(studentId) {
     const student = await StudentRepository.getById(studentId);
     if (!student) {
       throw new Error(`Pelajar dengan ID ${studentId} tidak dijumpai`);
     }
-    return new MaqraGrid(student.statusMap || {});
+    return this.buildGrid(student);
   },
 
   async updatePageStatus(studentId, page, status, tasmikInput = null) {
