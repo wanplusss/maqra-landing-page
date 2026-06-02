@@ -148,7 +148,8 @@ export function getMockDb() {
       beginner: !!s.beginner,
       enroll: ["2024-01-08", "2023-09-02", "2024-01-08", "2022-06-15", "2025-01-13", "2024-01-08"][i],
       target,
-      statusMap: status
+      statusMap: status,
+      school_slug: "al-furqan",
     };
   });
 
@@ -164,9 +165,9 @@ export function getMockDb() {
   };
 
   const teachers = [
-    { id: "t1", name: "Ustazah Aisyah Binti Hamzah", email: "aisyah@alfurqan.edu.my", kelas: "Tahun 4 & 5", password: "password123" },
-    { id: "t2", name: "Ustaz Hakim Bin Rashid",      email: "hakim@alfurqan.edu.my",  kelas: "Tahun 2 & 3", password: "password123" },
-    { id: "t3", name: "Ustazah Mariam Binti Idris",   email: "mariam@alfurqan.edu.my", kelas: "Tahun 6", password: "password123" }
+    { id: "t1", name: "Ustazah Aisyah Binti Hamzah", email: "aisyah@alfurqan.edu.my", kelas: "Tahun 4 & 5", password: "password123", school_slug: "al-furqan" },
+    { id: "t2", name: "Ustaz Hakim Bin Rashid",      email: "hakim@alfurqan.edu.my",  kelas: "Tahun 2 & 3", password: "password123", school_slug: "al-furqan" },
+    { id: "t3", name: "Ustazah Mariam Binti Idris",   email: "mariam@alfurqan.edu.my", kelas: "Tahun 6",     password: "password123", school_slug: "al-furqan" }
   ];
 
   const admin = {
@@ -192,9 +193,9 @@ export function getMockDb() {
   ];
 
   const announcements = [
-    { id: "a1", date: "2026-05-28", tag: "Peperiksaan", title: "Tasmik Pertengahan Tahun Bermula 9 Jun", body: "Sesi tasmik penilaian pertengahan tahun akan berlangsung dari 9 hingga 20 Jun. Pelajar dinasihatkan memperbanyakkan murajaah juzuk lepas." },
-    { id: "a2", date: "2026-05-15", tag: "Majlis", title: "Majlis Khatam & Penyampaian Sijil", body: "Majlis khatam tahunan akan diadakan pada 5 Julai 2026, jam 9 pagi di dewan utama maahad. Kehadiran ibu bapa amat dialu-alukan." },
-    { id: "a3", date: "2026-04-30", tag: "Cuti", title: "Cuti Pertengahan Penggal", body: "Maahad akan bercuti dari 24 Mei hingga 1 Jun. Kelas tahfiz disambung semula pada 2 Jun 2026." }
+    { id: "a1", date: "2026-05-28", tag: "Peperiksaan", title: "Tasmik Pertengahan Tahun Bermula 9 Jun", body: "Sesi tasmik penilaian pertengahan tahun akan berlangsung dari 9 hingga 20 Jun. Pelajar dinasihatkan memperbanyakkan murajaah juzuk lepas.", school_slug: "al-furqan" },
+    { id: "a2", date: "2026-05-15", tag: "Majlis", title: "Majlis Khatam & Penyampaian Sijil", body: "Majlis khatam tahunan akan diadakan pada 5 Julai 2026, jam 9 pagi di dewan utama maahad. Kehadiran ibu bapa amat dialu-alukan.", school_slug: "al-furqan" },
+    { id: "a3", date: "2026-04-30", tag: "Cuti", title: "Cuti Pertengahan Penggal", body: "Maahad akan bercuti dari 24 Mei hingga 1 Jun. Kelas tahfiz disambung semula pada 2 Jun 2026.", school_slug: "al-furqan" }
   ];
 
   const db = {
