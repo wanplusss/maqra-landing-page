@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from "react";
 import { TWEAK_DEFAULTS, ACCENTS, FONTS } from "./tweaksStrategies.js";
 
 const TweaksContext = createContext(null);

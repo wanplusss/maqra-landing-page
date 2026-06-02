@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useTweaks } from "./tweaksContext.jsx";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 const __TWEAKS_STYLE = `
   .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
@@ -181,7 +180,7 @@ export function TweaksPanel({ title = "Ubah Suai", children }) {
   return (
     <>
       <style>{__TWEAKS_STYLE}</style>
-      <div ref={dragRef} className="twk-panel" style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+      <div ref={dragRef} className="twk-panel">
         <div className="twk-hd" onMouseDown={onDragStart}>
           <b>⚙️ {title}</b>
           <button className="twk-x" aria-label="Tutup tweaks" onClick={() => setOpen(false)}>✕</button>

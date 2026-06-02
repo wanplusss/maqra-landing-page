@@ -28,10 +28,8 @@ export const PeerContextService = {
 
     const classAverage = Math.round((totalPace / validCount) * 10) / 10;
     
-    // Build Malay comparison text
-    let comparisonText = "";
     const diff = Math.round((studentPace - classAverage) * 10) / 10;
-
+    let comparisonText;
     if (diff > 2) {
       comparisonText = `${studentPace} m.s./bulan (Sangat Pantas vs Purata Kelas ${classAverage} m.s.) 🚀`;
     } else if (diff > 0) {

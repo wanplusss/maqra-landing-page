@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { STATUS } from "../../maqra/domain/statusColors.js";
-import { PageGrid, Legend } from "../GridView.jsx";
-import { Icon } from "../../../components/Shared.jsx";
+import { PageGrid } from "../GridView.jsx";
 
 export function ProgressGrid({ st, columns, onCell }) {
   const [filter, setFilter] = useState(null);

@@ -1,6 +1,4 @@
 import { SchoolRepository } from "../school/repository/SchoolRepository.js";
-import { StudentRepository } from "../student/repository/StudentRepository.js";
-import { MaqraGridService } from "../maqra/service/MaqraGridService.js";
 
 export const SuperAdminService = {
   async getPlatformDashboardData() {

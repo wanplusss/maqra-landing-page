@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { TweaksProvider, useTweaks } from "./features/tweaks/tweaksContext.jsx";
 import { ResponsiveProvider } from "./features/responsive/responsiveContext.jsx";
 import { TweaksPanel, TweakSection, TweakColor, TweakToggle, TweakSelect, TweakRadio } from "./features/tweaks/TweaksPanel.jsx";
@@ -29,7 +29,7 @@ import { TasmikRepository } from "./features/tasmik/repository/TasmikRepository.
 import { authService } from "./features/auth/authService.js";
 import { useRealtimeStudents } from "./backend/supabase/useRealtimeStudents.js";
 
-function Chrome({ persona, setPersona, path, schoolName }) {
+function Chrome({ persona, setPersona, path }) {
   const personas = [
     { key: "parent", label: "Ibu Bapa", icon: "users" },
     { key: "teacher", label: "Guru", icon: "cap" },
@@ -85,7 +85,6 @@ class ErrorBoundary extends React.Component {
 function MainAppContent() {
   const [t, setTweak] = useTweaks();
   const [persona, setPersona] = useState("parent");
-  const [path, setPath] = useState("");
   const isMobile = useIsMobile();
 
   // --- Dynamic Application States ---
@@ -155,21 +154,16 @@ function MainAppContent() {
     load();
   }, [refreshTrigger, persona]);
 
-  // Sync address bar URLs simulator
-  useEffect(() => {
-    if (persona === "parent") {
-      setPath(activeStudentId ? `/parent/${activeStudentId.toLowerCase()}` : "");
-    } else if (persona === "teacher") {
-      if (!teacherSession) setPath("/teacher/login");
-      else if (teacherSelectedStudent) setPath(`/teacher/student/${teacherSelectedStudent.id.toLowerCase()}`);
-      else setPath(`/teacher/${teacherView}`);
-    } else if (persona === "admin") {
-      if (!adminSession) setPath("/admin/login");
-      else setPath(`/admin/${adminView}`);
-    } else if (persona === "owner") {
-      if (!ownerSession) setPath("/owner/login");
-      else setPath("/owner/dashboard");
+  const path = useMemo(() => {
+    if (persona === "parent") return activeStudentId ? `/parent/${activeStudentId.toLowerCase()}` : "";
+    if (persona === "teacher") {
+      if (!teacherSession) return "/teacher/login";
+      if (teacherSelectedStudent) return `/teacher/student/${teacherSelectedStudent.id.toLowerCase()}`;
+      return `/teacher/${teacherView}`;
     }
+    if (persona === "admin") return adminSession ? `/admin/${adminView}` : "/admin/login";
+    if (persona === "owner") return ownerSession ? "/owner/dashboard" : "/owner/login";
+    return "";
   }, [persona, activeStudentId, teacherSession, teacherSelectedStudent, teacherView, adminSession, adminView, ownerSession]);
 
   const columns = isMobile ? 13 : (DENSITY[t.density] || 20);
@@ -281,7 +275,7 @@ function MainAppContent() {
                     columns={columns}
                     onBack={() => setTeacherSelectedStudent(null)}
                     onCellClick={(page) => setTeacherUpdateCellPage(page)}
-                    onTargetChange={(targetVal) => triggerRefresh()}
+                    onTargetChange={() => triggerRefresh()}
                     history={students.find(s => s.id === teacherSelectedStudent.id)?.history || []}
                   />
                 </main>
@@ -413,7 +407,7 @@ function MainAppContent() {
                   <div className="main-wide">
                     {adminView === "dash" && (
                       <SekolahDashboard 
-                        onOpenStudent={async (sid) => {
+                        onOpenStudent={() => {
                           alert("Pemerhatian data. Buka mod Guru untuk menyemak/tasmik terus!");
                         }}
                       />

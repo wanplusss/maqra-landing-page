@@ -1,15 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Icon, Bar } from "../../../components/Shared.jsx";
 import { AnalyticsService } from "../../analytics/service/AnalyticsService.js";
 import { TasmikRepository } from "../../tasmik/repository/TasmikRepository.js";
-
-// Helper for month/year label
-function getMonthYearStr(dateStr) {
-  if (!dateStr) return "—";
-  const dateObj = new Date(dateStr);
-  const months = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
-  return `${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-}
 
 const strengthBand = (s) => {
   if (s >= 70) return { key: "kukuh", label: "Kukuh", css: "hafazan" };
@@ -24,7 +16,6 @@ function ProjectionChart({ st, analytics }) {
 
   const t0 = new Date(st.enroll || "2024-01-08").getTime();
   const tNow = new Date(2026, 4, 30).getTime(); // Baseline current date
-  const pace = analytics.pace || 15;
   const daysToKhatam = analytics.daysToKhatam || 300;
   
   const tEnd = tNow + (daysToKhatam * 24 * 60 * 60 * 1000);
@@ -36,7 +27,6 @@ function ProjectionChart({ st, analytics }) {
   // Render path for past progress
   const chartData = analytics.chartData || [];
   const pastData = chartData.filter(d => d.actual !== null);
-  const projectedData = chartData.filter(d => d.projected !== null);
 
   const linePoints = [];
   // Build a realistic progress path from t0 to tNow

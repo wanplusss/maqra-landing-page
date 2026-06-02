@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Avatar, StatCard, Icon, GredBadge } from "../../components/Shared.jsx";
 import { PageGrid, Legend } from "../parent/GridView.jsx";
 import { StudentTargetService } from "../student/target/StudentTargetService.js";
@@ -30,7 +30,7 @@ function ProfileCard({ st, school }) {
   );
 }
 
-function SasaranEditor({ st, value, onChange }) {
+function SasaranEditor({ value, onChange }) {
   const step = (d) => {
     const next = Math.max(1, Math.min(60, value + d));
     onChange(next);

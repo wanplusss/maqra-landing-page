@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Avatar, StatusDot, Bar, Icon } from "../../../components/Shared.jsx";
 import { STATUS } from "../../maqra/domain/statusColors.js";
 import { SlipPrestasiService } from "../SlipPrestasiService.js";
@@ -13,7 +13,7 @@ function Row({ k, v }) {
   );
 }
 
-export function ProfilAnak({ st, school, totalMemorized }) {
+export function ProfilAnak({ st, school }) {
   const [printing, setPrinting] = useState(false);
   const [downloadingCert, setDownloadingCert] = useState(false);
 

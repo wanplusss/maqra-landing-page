@@ -1,6 +1,6 @@
 // Base Strategy Interface
 class ImportParsingStrategy {
-  parse(rawContent) {
+  parse() {
     throw new Error("Parse method must be implemented");
   }
 }
@@ -12,7 +12,7 @@ export class JsonImportStrategy extends ImportParsingStrategy {
       const data = JSON.parse(rawContent);
       return Array.isArray(data) ? data : [data];
     } catch (e) {
-      throw new Error("Fail JSON tidak sah: " + e.message);
+      throw new Error("Fail JSON tidak sah: " + e.message, { cause: e });
     }
   }
 }

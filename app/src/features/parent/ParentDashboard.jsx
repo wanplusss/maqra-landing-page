@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Sidebar, Icon, StatCard, Avatar, GredBadge } from "../../components/Shared.jsx";
+import { useState, useEffect } from "react";
+import { Sidebar, Icon, StatCard, GredBadge } from "../../components/Shared.jsx";
 import { Legend, PageGrid } from "./GridView.jsx";
 import { ProgressGrid } from "./SubPages/ProgressGrid.jsx";
 import { HistoryLog } from "./SubPages/HistoryLog.jsx";
@@ -140,8 +140,9 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
-  }, [studentId]);
+  }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!st || !school) {
     return <div className="empty" style={{ padding: "80px 20px" }}>Memuatkan maklumat ibu bapa...</div>;

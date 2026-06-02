@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { STATUS, STATUS_MAP } from "../maqra/domain/statusColors.js";
 import { getJuzukFromPage, getSurahFromPage, JUZ_START } from "../maqra/domain/pageMapping.js";
 

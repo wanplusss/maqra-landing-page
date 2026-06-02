@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DashboardService } from "./DashboardService.js";
 import { PengumumanService } from "../pengumuman/service/PengumumanService.js";
-import { Icon, StatCard, GredBadge } from "../../components/Shared.jsx";
+import { Icon, StatCard } from "../../components/Shared.jsx";
 
 export function SekolahDashboard({ onOpenStudent }) {
   const [stats, setStats] = useState(null);
@@ -20,6 +20,7 @@ export function SekolahDashboard({ onOpenStudent }) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
   }, []);
 

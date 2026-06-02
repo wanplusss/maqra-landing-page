@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { useState, useMemo, useEffect } from "react";
 import { STATUS_MAP } from "../features/maqra/domain/statusColors.js";
-import { GRED_MAP } from "../features/maqra/domain/statusColors.js";
 
 /* ---- responsive hook ---- */
 export function useIsMobile(bp = 760) {
@@ -265,10 +265,10 @@ export function Placeholder({ label, h = 160, style }) {
 export function FauxQR({ size = 132, seed = 7 }) {
   const cells = useMemo(() => {
     const n = 21;
-    // Simple LCG random
+    // Simple LCG random — local state accumulator, intentional mutation
     let s = seed * 99 + 1;
     const r = () => {
-      s = (s * 1103515245 + 12345) & 0x7fffffff;
+      s = (s * 1103515245 + 12345) & 0x7fffffff; // eslint-disable-line
       return s / 0x7fffffff;
     };
     

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ClassViewService } from "./ClassViewService.js";
-import { Icon } from "../../components/Shared.jsx";
 
 export function ClassView({ onOpenStudent }) {
   const [className, setClassName] = useState("Tahun 4");
@@ -105,7 +104,6 @@ export function ClassView({ onOpenStudent }) {
                         {row.juzukCompletions.map((pct, idx) => {
                           // pine emerald shades based on completion percent
                           let cellBg = "var(--line-2)";
-                          let cellBorder = "transparent";
                           let opacity = 0.2;
                           
                           if (pct === 100) {

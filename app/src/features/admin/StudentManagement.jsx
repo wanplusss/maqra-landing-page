@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { StudentRepository } from "../student/repository/StudentRepository.js";
 import { Icon, Avatar } from "../../components/Shared.jsx";
 import { BulkImportModal } from "../student/import/BulkImportModal.jsx";

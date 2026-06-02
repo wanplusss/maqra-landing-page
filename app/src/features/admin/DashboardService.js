@@ -17,10 +17,8 @@ export const DashboardService = {
     const summaries = await MaqraGridService.getGridSummaries();
     
     let sumProgress = 0;
-    let sumFrontier = 0;
     for (const id in summaries) {
       sumProgress += summaries[id].progressPercent;
-      sumFrontier += summaries[id].frontier;
     }
     
     const averageProgress = totalStudents > 0 

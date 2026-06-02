@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { GredBadge } from "../../../components/Shared.jsx";
 
-export function HistoryLog({ st, historyList = [] }) {
+export function HistoryLog({ historyList = [] }) {
   const [sort, setSort] = useState("date");
 
   const rows = useMemo(() => {

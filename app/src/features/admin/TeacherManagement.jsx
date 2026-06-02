@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { TeacherRepository } from "../teacher/repository/TeacherRepository.js";
 import { Icon, Avatar } from "../../components/Shared.jsx";
 

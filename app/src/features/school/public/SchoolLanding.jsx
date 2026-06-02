@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SchoolRepository } from "../repository/SchoolRepository.js";
 import { PengumumanService } from "../../pengumuman/service/PengumumanService.js";
 import { Wordmark, Icon, FauxQR } from "../../../components/Shared.jsx";

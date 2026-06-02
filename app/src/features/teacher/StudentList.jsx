@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Avatar, StatCard, Icon, StatusChip } from "../../components/Shared.jsx";
 
 export function StudentRow({ st, onOpen }) {
