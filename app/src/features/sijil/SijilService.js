@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf";
 import { sijilTemplate } from "./sijilTemplate.js";
 import { StudentRepository } from "../student/repository/StudentRepository.js";
 import { SchoolRepository } from "../school/repository/SchoolRepository.js";
@@ -40,7 +39,7 @@ export const SijilService = {
       year: "numeric"
     });
 
-    // Create jsPDF landscape instance (A4: 297mm x 210mm)
+    const { jsPDF } = await import("jspdf");
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",

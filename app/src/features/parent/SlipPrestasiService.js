@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf";
 import { slipPrestasiTemplate } from "./slipPrestasiTemplate.js";
 import { StudentRepository } from "../student/repository/StudentRepository.js";
 import { TasmikRepository } from "../tasmik/repository/TasmikRepository.js";
@@ -16,7 +15,7 @@ export const SlipPrestasiService = {
     const prediction = await AnalyticsService.predictKhatam(studentId);
     const tasmikLog = await TasmikRepository.getRecordsForStudent(studentId);
 
-    // Create Portrait A4 PDF
+    const { jsPDF } = await import("jspdf");
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
