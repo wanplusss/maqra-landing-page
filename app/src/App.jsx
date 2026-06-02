@@ -182,7 +182,8 @@ function MainAppContent() {
           masalah: patch.masalah,
           cadangan: patch.cadangan,
           guru: teacherSession.name
-        } : null
+        } : null,
+        school.slug
       );
       setTeacherUpdateCellPage(null);
 

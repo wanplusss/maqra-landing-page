@@ -52,6 +52,18 @@ export const TasmikRepository = {
       .slice(0, limit);
   },
 
+  async deleteRecord(id) {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.deleteTasmikRecord(id);
+    }
+    const db = getMockDb();
+    const filtered = db.tasmik_records.filter(r => r.id !== id);
+    if (filtered.length === db.tasmik_records.length) throw new Error("Record not found");
+    db.tasmik_records = filtered;
+    saveMockDb(db);
+    return true;
+  },
+
   async getMonthlyThroughput() {
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.getMonthlyTasmikThroughput();

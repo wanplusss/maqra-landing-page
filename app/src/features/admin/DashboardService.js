@@ -14,7 +14,7 @@ export const DashboardService = {
     const totalTeachers = teachers.length;
 
     // Grid summaries
-    const summaries = await MaqraGridService.getGridSummaries();
+    const summaries = await MaqraGridService.getGridSummaries(schoolSlug);
     
     let sumProgress = 0;
     for (const id in summaries) {

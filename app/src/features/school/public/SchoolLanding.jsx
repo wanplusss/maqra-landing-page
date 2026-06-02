@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SchoolRepository } from "../repository/SchoolRepository.js";
+import { TeacherRepository } from "../../teacher/repository/TeacherRepository.js";
 import { PengumumanService } from "../../pengumuman/service/PengumumanService.js";
 import { Wordmark, Icon, FauxQR, DuitNowQR } from "../../../components/Shared.jsx";
 
@@ -13,8 +14,11 @@ export function SchoolLanding({ onEnterLookup }) {
   useEffect(() => {
     async function load() {
       const data = await SchoolRepository.getProfile();
-      const activeAnns = await PengumumanService.getActiveAnnouncements();
-      setSchool(data);
+      const [activeAnns, teachers] = await Promise.all([
+        PengumumanService.getActiveAnnouncements(data.slug),
+        TeacherRepository.listAll(data.slug),
+      ]);
+      setSchool({ ...data, teachers: teachers.length });
       setAnns(activeAnns);
     }
     load();
@@ -74,7 +78,7 @@ export function SchoolLanding({ onEnterLookup }) {
             {[
               ["Tahun ditubuhkan", school.founded || 2016],
               ["Pelajar berdaftar", `${school.enrolled || 6} orang`],
-              ["Tenaga pengajar", "3 orang Ustaz/ah"]
+              ["Tenaga pengajar", `${school.teachers || "—"} orang Ustaz/ah`]
             ].map(([k, v]) => (
               <div key={k}>
                 <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", whiteSpace: "nowrap" }}>{v}</div>

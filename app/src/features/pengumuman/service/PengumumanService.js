@@ -24,6 +24,12 @@ export const PengumumanService = {
     return await PengumumanRepository.getAllActive(schoolSlug);
   },
 
+  async updateAnnouncement(id, title, body, tag) {
+    requireRole(["admin", "superadmin"]);
+    if (!title || !body) throw new Error("Tajuk dan kandungan adalah wajib");
+    return await PengumumanRepository.update(id, { title, body, tag });
+  },
+
   async deleteAnnouncement(id) {
     requireRole(["admin", "superadmin"]);
     return await PengumumanRepository.delete(id);

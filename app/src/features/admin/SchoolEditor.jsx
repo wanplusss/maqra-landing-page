@@ -76,10 +76,14 @@ export function SchoolEditor() {
   const [profile, setProfile] = useState(null);
 
   const [name, setName] = useState("");
+  const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [plan, setPlan] = useState("Percubaan");
+  const [status, setStatus] = useState("percubaan");
+  const [adminPassword, setAdminPassword] = useState("");
   const [founded, setFounded] = useState(2016);
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
@@ -92,11 +96,14 @@ export function SchoolEditor() {
       const data = await SchoolRepository.getProfile();
       setProfile(data);
       setName(data.name || "");
+      setCity(data.city || "");
       setAddress(data.address || "");
       setDescription(data.description || "");
       setPhone(data.phone || "");
       setEmail(data.email || "");
       setFounded(data.founded || 2016);
+      setPlan(data.plan || "Percubaan");
+      setStatus(data.status || "percubaan");
       setBankName(data.bankName || "");
       setBankAccount(data.bankAccount || "");
       setDonationTarget(data.donationTarget || 10000);
@@ -111,19 +118,24 @@ export function SchoolEditor() {
     setLoading(true);
     setSaved(false);
     try {
-      await SchoolRepository.updateProfile(profile.slug || "al-furqan", {
+      const updates = {
         name,
+        city,
         address,
         description,
         phone,
         email,
         founded: parseInt(founded),
+        plan,
+        status,
         bankName,
         bankAccount,
         donationTarget: parseFloat(donationTarget),
         donationRaised: parseFloat(donationRaised),
         qrCode: qrPayload,
-      });
+      };
+      if (adminPassword.trim()) updates.admin_password = adminPassword.trim();
+      await SchoolRepository.updateProfile(profile.slug || "al-furqan", updates);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (e) {
@@ -177,13 +189,37 @@ export function SchoolEditor() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div className="field">
+              <label>Bandar / Negeri</label>
+              <input className="input" value={city} onChange={(e) => setCity(e.target.value)} placeholder="cth. Kajang, Selangor" />
+            </div>
+            <div className="field">
               <label>Tahun Ditubuhkan</label>
               <input className="input" type="number" value={founded} onChange={(e) => setFounded(e.target.value)} required />
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div className="field">
+              <label>Pakej Pelan</label>
+              <select className="input" value={plan} onChange={(e) => setPlan(e.target.value)}>
+                {["Percubaan","Asas","Premium"].map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Status</label>
+              <select className="input" value={status} onChange={(e) => setStatus(e.target.value)}>
+                {["aktif","percubaan","tidak aktif"].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
             <div className="field">
               <label>Nama Bank Sumbangan</label>
               <input className="input" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="cth. Maybank Islamic" />
             </div>
+          </div>
+
+          <div className="field">
+            <label>Tukar Kata Laluan Admin</label>
+            <input className="input" type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="Kosongkan jika tidak ingin tukar" />
           </div>
 
           <div className="field">

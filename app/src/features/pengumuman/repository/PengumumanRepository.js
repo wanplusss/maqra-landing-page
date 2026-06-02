@@ -28,6 +28,18 @@ export const PengumumanRepository = {
     return schoolSlug ? all.filter(a => a.school_slug === schoolSlug) : all;
   },
 
+  async update(id, updates) {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.updateAnnouncement(id, updates);
+    }
+    const db = getMockDb();
+    const idx = db.announcements.findIndex(a => a.id === id);
+    if (idx === -1) throw new Error("Announcement not found");
+    db.announcements[idx] = { ...db.announcements[idx], ...updates };
+    saveMockDb(db);
+    return db.announcements[idx];
+  },
+
   async delete(id) {
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.deleteAnnouncement(id);

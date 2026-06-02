@@ -17,11 +17,12 @@ export const MaqraGridService = {
     return this.buildGrid(student);
   },
 
-  async updatePageStatus(studentId, page, status, tasmikInput = null) {
+  async updatePageStatus(studentId, page, status, tasmikInput = null, schoolSlug = null) {
     const student = await StudentRepository.getById(studentId);
     if (!student) {
       throw new Error(`Pelajar dengan ID ${studentId} tidak dijumpai`);
     }
+    const resolvedSlug = schoolSlug || student.school_slug || null;
 
     const grid = new MaqraGrid(student.statusMap || {});
     const updatedGrid = grid.updatePageStatus(page, status);
@@ -47,7 +48,8 @@ export const MaqraGridService = {
         ulasan: tasmikInput.ulasan || "",
         masalah: tasmikInput.masalah || "",
         cadangan: tasmikInput.cadangan || "",
-        guru: tasmikInput.guru || "Guru Penguji"
+        guru: tasmikInput.guru || "Guru Penguji",
+        ...(resolvedSlug && { school_slug: resolvedSlug }),
       };
       await TasmikRepository.saveRecord(record);
 
@@ -63,8 +65,8 @@ export const MaqraGridService = {
     return updatedGrid;
   },
 
-  async getGridSummaries() {
-    const students = await StudentRepository.listAll();
+  async getGridSummaries(schoolSlug) {
+    const students = await StudentRepository.listAll(schoolSlug);
     const summaries = {};
     for (const student of students) {
       const grid = new MaqraGrid(student.statusMap || {});

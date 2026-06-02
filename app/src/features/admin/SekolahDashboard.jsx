@@ -10,6 +10,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
   const [annBody, setAnnBody] = useState("");
   const [annTag, setAnnTag] = useState("Peperiksaan");
   const [posting, setPosting] = useState(false);
+  const [editingAnn, setEditingAnn] = useState(null); // { id, title, body, tag }
 
   const loadData = async () => {
     const data = await DashboardService.getSchoolDashboardData(schoolSlug);
@@ -46,6 +47,14 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
       await PengumumanService.deleteAnnouncement(id);
       loadData();
     }
+  };
+
+  const saveEditAnn = async (e) => {
+    if (e) e.preventDefault();
+    if (!editingAnn) return;
+    await PengumumanService.updateAnnouncement(editingAnn.id, editingAnn.title, editingAnn.body, editingAnn.tag);
+    setEditingAnn(null);
+    loadData();
   };
 
   if (!stats) {
@@ -155,12 +164,28 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {anns.map((an) => (
                 <div key={an.id} style={{ borderBottom: "1px solid var(--line-2)", paddingBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <span className="badge badge-ok">{an.tag}</span>
-                    <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => deleteAnnouncement(an.id)}>✕</button>
-                  </div>
-                  <h4 style={{ margin: "0 0 4px", fontSize: 13.5, fontWeight: 700 }}>{an.title}</h4>
-                  <p style={{ margin: 0, fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.5 }}>{an.body}</p>
+                  {editingAnn?.id === an.id ? (
+                    <form onSubmit={saveEditAnn} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <input className="input" style={{ fontSize: 13 }} value={editingAnn.title} onChange={(e) => setEditingAnn(p => ({ ...p, title: e.target.value }))} required />
+                      <textarea className="textarea" style={{ fontSize: 12.5, minHeight: 60 }} value={editingAnn.body} onChange={(e) => setEditingAnn(p => ({ ...p, body: e.target.value }))} required />
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button type="submit" className="btn btn-sm btn-primary">Simpan</button>
+                        <button type="button" className="btn btn-sm btn-ghost" onClick={() => setEditingAnn(null)}>Batal</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <span className="badge badge-ok">{an.tag}</span>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => setEditingAnn({ id: an.id, title: an.title, body: an.body, tag: an.tag })} title="Edit"><Icon name="edit" size={13} /></button>
+                          <button className="iconbtn" style={{ width: 22, height: 22 }} onClick={() => deleteAnnouncement(an.id)} title="Padam">✕</button>
+                        </div>
+                      </div>
+                      <h4 style={{ margin: "0 0 4px", fontSize: 13.5, fontWeight: 700 }}>{an.title}</h4>
+                      <p style={{ margin: 0, fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.5 }}>{an.body}</p>
+                    </>
+                  )}
                 </div>
               ))}
               {anns.length === 0 && <div className="empty">Tiada pengumuman aktif.</div>}

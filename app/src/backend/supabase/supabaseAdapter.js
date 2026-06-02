@@ -188,6 +188,18 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async updateTeacher(id, updates) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("teachers")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   async deleteTeacher(id) {
     checkActive();
     const { error } = await supabase
@@ -310,6 +322,18 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async updateAnnouncement(id, updates) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("announcements")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   async deleteAnnouncement(id) {
     checkActive();
     const { error } = await supabase
@@ -329,7 +353,27 @@ export const supabaseAdapter = {
       .eq("studentId", studentId)
       .maybeSingle();
     if (error) throw error;
-    return data ? data.pagesPerMonth : null;
+    return data || null;
+  },
+
+  async deleteStudentTarget(studentId) {
+    checkActive();
+    const { error } = await supabase
+      .from("student_targets")
+      .delete()
+      .eq("studentId", studentId);
+    if (error) throw error;
+    return true;
+  },
+
+  async deleteTasmikRecord(id) {
+    checkActive();
+    const { error } = await supabase
+      .from("tasmik_records")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return true;
   },
 
   async setStudentTarget(studentId, pagesPerMonth) {

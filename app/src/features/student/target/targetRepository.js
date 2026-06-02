@@ -11,6 +11,18 @@ export const targetRepository = {
     return db.student_targets[studentId] || null;
   },
 
+  async deleteTarget(studentId) {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.deleteStudentTarget(studentId);
+    }
+    const db = getMockDb();
+    delete db.student_targets[studentId];
+    const idx = db.students.findIndex(s => s.id === studentId);
+    if (idx !== -1) db.students[idx].target = 15;
+    saveMockDb(db);
+    return true;
+  },
+
   async setTarget(studentId, pagesPerMonth) {
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.setStudentTarget(studentId, pagesPerMonth);

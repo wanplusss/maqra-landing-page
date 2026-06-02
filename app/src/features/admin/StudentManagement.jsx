@@ -77,7 +77,7 @@ export function StudentManagement({ students = [], schoolSlug, onRefresh }) {
         parent,
         sex,
         beginner,
-        target: parseInt(target)
+        target: parseInt(target),
       });
     }
 
