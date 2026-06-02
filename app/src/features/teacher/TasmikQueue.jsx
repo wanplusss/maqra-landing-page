@@ -21,7 +21,7 @@ export function TasmikQueue({ onOpenStudent, schoolSlug }) {
   }, []);
 
   if (loading) {
-    return <div className="empty">Memuatkan barisan giliran tasmik harian...</div>;
+    return <div className="empty">Memuatkan senarai tasmik hari ini...</div>;
   }
 
   return (
@@ -50,7 +50,7 @@ export function TasmikQueue({ onOpenStudent, schoolSlug }) {
               key={item.studentId}
               className="card"
               style={{
-                display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 16, padding: "16px 20px",
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 20px",
                 flexWrap: "wrap"
               }}
             >

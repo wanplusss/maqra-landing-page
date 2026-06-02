@@ -311,7 +311,7 @@ function MainAppContent() {
                     { section: "Bimbingan Guru" },
                     { key: "murid", label: "Senarai Pelajar", icon: "users" },
                     { key: "tasmik", label: "Tasmik Hari Ini", icon: "flame" },
-                    { key: "kohort", label: "Heatmap Kohort", icon: "grid" }
+                    { key: "kohort", label: "Heatmap Kelas", icon: "grid" }
                   ]}
                 />
                 <main className="main">

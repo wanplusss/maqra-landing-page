@@ -74,7 +74,7 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
         <table className="tbl">
           <thead>
             <tr>
-              <th>Guru Penguji</th>
+              <th>Guru Bimbingan</th>
               <th>Alamat E-mel</th>
               <th>Kelas Bimbingan</th>
               <th style={{ width: 100, textAlign: "right" }}>Tindakan</th>
@@ -150,7 +150,7 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
               <p style={{ margin: 0, fontSize: 14, fontWeight: 650 }}>Adakah anda pasti untuk memadam akaun guru?</p>
               <h4 style={{ margin: "6px 0 0", color: "var(--ink)", fontSize: 16 }}>{selectedTeacher.name}</h4>
               <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                Akses guru ini ke dalam sistem Maqra' akan disekat serta merta.
+                Akses guru ini akan dimatikan segera.
               </p>
             </div>
             <div className="modal-foot">

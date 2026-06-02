@@ -79,7 +79,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
         <div className="card" style={{ padding: 22 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <Icon name="info" size={17} style={{ color: "var(--gr-sederhana)" }} />
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Triage Sokongan Akademik</h3>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Pelajar Memerlukan Bantuan</h3>
           </div>
           <p style={{ margin: "0 0 16px", fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.5 }}>
             Pelajar di bawah bimbingan yang ketinggalan daripada sasaran bulanan mereka (kelajuan semasa kurang dari sasaran).
@@ -87,7 +87,7 @@ export function SekolahDashboard({ onOpenStudent, schoolSlug }) {
 
           <div className="scroll" style={{ overflowX: "auto" }}>
             {stats.behindStudentsList.length === 0 ? (
-              <div className="empty" style={{ padding: "30px 10px" }}>Tiada pelajar ketinggalan sasaran! Semua on-track. 🎉</div>
+              <div className="empty" style={{ padding: "30px 10px" }}>Tiada pelajar ketinggalan sasaran! Semua mengikut sasaran. 🎉</div>
             ) : (
               <table className="tbl">
                 <thead>

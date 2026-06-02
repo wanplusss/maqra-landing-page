@@ -31,7 +31,7 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
     <div>
       <div className="pagehead">
         <div>
-          <h1>Peta Kemajuan Kohort Kelas</h1>
+          <h1>Peta Kemajuan Kelas</h1>
           <p>Prestasi kumulatif pelajar merentas 30 Juzuk Al-Quran</p>
         </div>
         <div>
@@ -137,7 +137,7 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
                                 transition: "transform .12s, opacity .12s",
                                 cursor: "pointer"
                               }}
-                              title={`Juzuk ${idx + 1}: ${pct}% selesai`}
+                              title={`Juzuk ${idx + 1}: ${pct}% dihafaz`}
                               onClick={() => onOpenStudent(row.studentId)}
                               onMouseOver={(e) => { e.target.style.transform = "scale(1.25)"; e.target.style.opacity = 1; }}
                               onMouseOut={(e) => { e.target.style.transform = ""; e.target.style.opacity = opacity; }}
@@ -159,9 +159,9 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
       {/* Legend */}
       <div className="card" style={{ padding: 14, display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
         {[
-          { label: "Selesai Penuh (100%)", color: "var(--st-hafazan-ink)", opacity: 0.95 },
-          { label: "Majoriti (>75%)", color: "var(--st-hafazan-ink)", opacity: 0.75 },
-          { label: "Separuh Selesai (>40%)", color: "var(--st-murajaah-ink)", opacity: 0.6 },
+          { label: "Hafazan Lengkap (100%)", color: "var(--st-hafazan-ink)", opacity: 0.95 },
+          { label: "Majoriti Dihafaz (>75%)", color: "var(--st-hafazan-ink)", opacity: 0.75 },
+          { label: "Separuh Hafazan (>40%)", color: "var(--st-murajaah-ink)", opacity: 0.6 },
           { label: "Mula Hafaz (>0%)", color: "var(--st-bacaan-ink)", opacity: 0.45 },
           { label: "Belum Mula", color: "var(--line-2)", opacity: 0.2 }
         ].map((leg) => (

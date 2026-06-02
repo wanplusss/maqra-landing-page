@@ -78,7 +78,7 @@ function HistoryItem({ h }) {
   return (
     <div style={{ position: "relative", paddingLeft: 16 }}>
       <span style={{ position: "absolute", left: 0, top: 5, bottom: 5, width: 3, borderRadius: 9, background: "var(--accent)", opacity: 0.5 }} />
-      <div style={{ display: "flex", justifyBetween: "space-between", gap: 8, marginBottom: 5 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 5 }}>
         <span className="mono" style={{ fontSize: 12, color: "var(--ink-3)" }}>{dateStr}</span>
         <span className="badge" style={{ fontSize: 11 }}>{h.kategori}</span>
       </div>
@@ -120,7 +120,7 @@ export function StudentDashboard({ st, school, columns, onBack, onCellClick, onT
   return (
     <div>
       <button className="btn btn-ghost btn-sm" onClick={onBack} style={{ marginBottom: 16 }}>
-        ← Kembalilah ke Senarai Murid
+        ← Kembali ke Senarai Pelajar
       </button>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: 22, alignItems: "start" }}>
@@ -141,7 +141,7 @@ export function StudentDashboard({ st, school, columns, onBack, onCellClick, onT
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Grid Progres Semakan</h3>
-                <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "var(--ink-3)" }}>Klik mana-mana sel petak untuk tasmik atau tukar status.</p>
+                <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "var(--ink-3)" }}>Klik sel untuk merekod tasmik atau menukar status.</p>
               </div>
               <span className="badge badge-ok"><Icon name="edit" size={13} /> Mod Guru Aktif</span>
             </div>
@@ -158,7 +158,7 @@ export function StudentDashboard({ st, school, columns, onBack, onCellClick, onT
           <div className="card" style={{ padding: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Icon name="award" size={17} style={{ color: "var(--accent)" }} />
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Mentauliah Sijil</h3>
+              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Sijil Pencapaian</h3>
             </div>
             <p style={{ margin: "0 0 14px", fontSize: "12.5px", color: "var(--ink-3)", lineHeight: 1.5 }}>
               Pelajar telah menguasai Juzuk {st.juzuk || 1}. Cetak sijil rasmi pencapaian tahfiz sekarang.

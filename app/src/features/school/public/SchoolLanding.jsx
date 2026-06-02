@@ -93,7 +93,7 @@ export function SchoolLanding({ onEnterLookup }) {
           <div className="card" style={{ padding: 22 }}>
             <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 800 }}>Semak Progres Anak</h3>
             <p style={{ margin: "0 0 16px", color: "var(--ink-3)", fontSize: "13.5px" }}>
-              Masukkan ID Pelajar anak anda untuk melihat laporan perkembangan hafazan & semakan bacaan terkini.
+              Masukkan ID Pelajar anak anda untuk melihat laporan perkembangan hafazan dan semakan bacaan terkini.
             </p>
             <form onSubmit={handleLookup} style={{ display: "flex", gap: 10 }}>
               <div className="search" style={{ flex: 1 }}>

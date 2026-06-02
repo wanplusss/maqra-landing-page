@@ -31,9 +31,9 @@ export function TeacherLogin({ role = "teacher", slug = "al-furqan", defaultEmai
   };
 
   const roleMeta = {
-    teacher: { title: "Log Masuk Guru", icon: "cap", desc: "Akses guru pengajar kelas tahfiz" },
-    admin: { title: "Log Masuk Admin", icon: "shield", desc: "Akses pentadbiran institusi maahad" },
-    superadmin: { title: "Platform Owner", icon: "globe", desc: "Platform-wide SaaS analytics cockpit" }
+    teacher: { title: "Log Masuk Guru", icon: "cap", desc: "Portal guru pengajar tahfiz" },
+    admin: { title: "Log Masuk Admin", icon: "shield", desc: "Pentadbiran institusi maahad" },
+    superadmin: { title: "Log Masuk Pemilik", icon: "globe", desc: "Panel kawalan platform Maqra'" }
   };
 
   const meta = roleMeta[role] || roleMeta.teacher;
@@ -75,7 +75,7 @@ export function TeacherLogin({ role = "teacher", slug = "al-furqan", defaultEmai
             </button>
           </form>
           <div style={{ marginTop: 16, fontSize: "11.5px", color: "var(--ink-3)", display: "flex", alignItems: "center", gap: 6, justifyContent: "center" }}>
-            <Icon name="lock" size={13} /> Dilindungi RLS · akses disulitkan
+            <Icon name="lock" size={13} /> Dilindungi RLS · akses terbatas
           </div>
         </div>
       </div>

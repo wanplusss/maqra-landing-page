@@ -87,7 +87,7 @@ export function ProfilAnak({ st, school }) {
         
         {/* Printable Report Actions */}
         <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Dokumen & Laporan</h3>
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Dokumen dan Laporan</h3>
           <button className="btn btn-primary" onClick={printReport} disabled={printing} style={{ justifyContent: "center" }}>
             <Icon name="print" size={16} /> 
             {printing ? "Menjana Slip..." : "Cetak Slip Prestasi (PDF)"}

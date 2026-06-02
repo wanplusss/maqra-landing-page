@@ -207,7 +207,7 @@ export function Analitik({ st }) {
       ulasan: "Selesai murajaah juzuk kendiri dengan baik.",
       masalah: "—",
       cadangan: "Teruskan hafazan seterusnya.",
-      guru: "Ustaz / Ustazah Pengawas"
+      guru: "Guru Bimbingan"
     });
 
     // Reload decay plan

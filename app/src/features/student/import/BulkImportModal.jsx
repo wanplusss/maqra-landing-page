@@ -96,8 +96,8 @@ export function BulkImportModal({ isOpen, onClose, onRefresh, schoolSlug }) {
       <div className="modal" style={{ maxWidth: 580 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <div>
-            <h3>Bulk Import Roster Pelajar</h3>
-            <p>Daftar ramai pelajar sekaligus melalui fail CSV/JSON atau tampalan teks</p>
+            <h3>Import Senarai Pelajar</h3>
+            <p>Daftar ramai pelajar sekaligus melalui fail CSV/JSON atau teks yang ditampal</p>
           </div>
           <button className="iconbtn" onClick={onClose}>✕</button>
         </div>
@@ -110,7 +110,7 @@ export function BulkImportModal({ isOpen, onClose, onRefresh, schoolSlug }) {
               </span>
               <h3 style={{ margin: 0, fontWeight: 800 }}>Import Berjaya!</h3>
               <p style={{ margin: "6px 0 16px", fontSize: 13.5, color: "var(--ink-2)" }}>
-                Sebanyak <strong>{successCount}</strong> rekod pelajar baharu telah berjaya diimport ke dalam sistem.
+                Sebanyak <strong>{successCount}</strong> rekod pelajar baharu telah berjaya dimuat masuk ke dalam sistem.
               </p>
               <button type="button" className="btn btn-primary" style={{ margin: "0 auto" }} onClick={() => setSuccessCount(null)}>
                 Import Lebih Banyak
@@ -162,7 +162,7 @@ export function BulkImportModal({ isOpen, onClose, onRefresh, schoolSlug }) {
               <div className="modal-foot" style={{ padding: "8px 0 0", borderTop: "none" }}>
                 <button type="button" className="btn btn-ghost" onClick={onClose} disabled={loading}>Batal</button>
                 <button type="submit" className="btn btn-primary" disabled={loading || !rawText.trim()}>
-                  <Icon name="save" size={15} /> {loading ? "Mengimport..." : "Mula Bulk Import"}
+                  <Icon name="save" size={15} /> {loading ? "Memuat masuk..." : "Mula Import"}
                 </button>
               </div>
             </form>
