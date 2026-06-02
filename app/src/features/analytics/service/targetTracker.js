@@ -14,7 +14,7 @@ export const TargetTracker = {
     // comparing actual pages added per month against target
     const records = await TasmikRepository.getRecordsForStudent(studentId);
     const monthsData = [];
-    const today = new Date(2026, 4, 30);
+    const today = new Date();
 
     for (let i = 5; i >= 0; i--) {
       const d = new Date(today);

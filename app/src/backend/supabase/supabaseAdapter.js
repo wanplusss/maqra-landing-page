@@ -285,9 +285,9 @@ export const supabaseAdapter = {
       .order("name", { ascending: true });
     if (schoolErr) throw schoolErr;
 
-    const { data: studentCounts, error: countErr } = await supabase
+    const { data: studentData, error: countErr } = await supabase
       .from("students")
-      .select("school_slug");
+      .select("school_slug, progress");
     if (countErr) throw countErr;
 
     const { data: teacherCounts, error: tErr } = await supabase
@@ -295,20 +295,30 @@ export const supabaseAdapter = {
       .select("school_slug");
     if (tErr) throw tErr;
 
-    const studentMap = studentCounts.reduce((acc, s) => {
-      acc[s.school_slug] = (acc[s.school_slug] || 0) + 1;
-      return acc;
-    }, {});
+    const studentMap = {};
+    const progressMap = {};
+    studentData.forEach((s) => {
+      studentMap[s.school_slug] = (studentMap[s.school_slug] || 0) + 1;
+      if (!progressMap[s.school_slug]) progressMap[s.school_slug] = [];
+      progressMap[s.school_slug].push(s.progress || 0);
+    });
     const teacherMap = teacherCounts.reduce((acc, t) => {
       acc[t.school_slug] = (acc[t.school_slug] || 0) + 1;
       return acc;
     }, {});
 
-    return schools.map(sch => ({
-      ...sch,
-      students: studentMap[sch.slug] || 0,
-      teachers: teacherMap[sch.slug] || 0,
-    }));
+    return schools.map(sch => {
+      const progs = progressMap[sch.slug] || [];
+      const avgProg = progs.length > 0
+        ? Math.round((progs.reduce((a, b) => a + b, 0) / progs.length) * 10) / 10
+        : null;
+      return {
+        ...sch,
+        students: studentMap[sch.slug] || 0,
+        teachers: teacherMap[sch.slug] || 0,
+        avgProg,
+      };
+    });
   },
 
   // ---- ANNOUNCEMENTS ----

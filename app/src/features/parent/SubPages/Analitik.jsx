@@ -15,7 +15,7 @@ function ProjectionChart({ st, analytics }) {
   const innerW = W - padL - padR, innerH = H - padT - padB;
 
   const t0 = new Date(st.enroll || "2024-01-08").getTime();
-  const tNow = new Date(2026, 4, 30).getTime(); // Baseline current date
+  const tNow = new Date().getTime(); // Baseline current date
   const daysToKhatam = analytics.daysToKhatam || 300;
   
   const tEnd = tNow + (daysToKhatam * 24 * 60 * 60 * 1000);

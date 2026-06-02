@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SchoolRepository } from "../repository/SchoolRepository.js";
 import { TeacherRepository } from "../../teacher/repository/TeacherRepository.js";
+import { StudentRepository } from "../../student/repository/StudentRepository.js";
 import { PengumumanService } from "../../pengumuman/service/PengumumanService.js";
 import { Wordmark, Icon, FauxQR, DuitNowQR } from "../../../components/Shared.jsx";
 
@@ -14,11 +15,12 @@ export function SchoolLanding({ onEnterLookup }) {
   useEffect(() => {
     async function load() {
       const data = await SchoolRepository.getProfile();
-      const [activeAnns, teachers] = await Promise.all([
+      const [activeAnns, teachers, students] = await Promise.all([
         PengumumanService.getActiveAnnouncements(data.slug),
         TeacherRepository.listAll(data.slug),
+        StudentRepository.listAll(data.slug),
       ]);
-      setSchool({ ...data, teachers: teachers.length });
+      setSchool({ ...data, teachers: teachers.length, enrolled: students.length });
       setAnns(activeAnns);
     }
     load();

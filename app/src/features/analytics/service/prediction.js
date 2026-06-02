@@ -10,7 +10,7 @@ export const PredictionService = {
     if (records.length < 2) {
       // Estimate based on enrollment date
       const enrollDate = new Date(student.enroll || "2024-01-08");
-      const today = new Date(2026, 4, 30); // fixed relative current time
+      const today = new Date(); // fixed relative current time
       const months = Math.max(1, (today - enrollDate) / (1000 * 60 * 60 * 24 * 30.4));
       return Math.round((student.frontier / months) * 10) / 10;
     }
@@ -36,12 +36,12 @@ export const PredictionService = {
     const remainingPages = 604 - student.frontier;
     const daysToKhatam = Math.ceil(remainingPages / pagesPerDay);
 
-    const khatamDate = new Date(2026, 4, 30); // system baseline date
+    const khatamDate = new Date(); // system baseline date
     khatamDate.setDate(khatamDate.getDate() + daysToKhatam);
 
     // Generate chart data coordinates for rendering SVG charts in frontend
     // Past 6 months of actual pages
-    const today = new Date(2026, 4, 30);
+    const today = new Date();
     const chartData = [];
     const frontier = student.frontier;
 

@@ -7,6 +7,7 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [kelas, setKelas] = useState("Tahun 4 & 5");
+  const [password, setPassword] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   const openEdit = (t) => {
@@ -14,12 +15,13 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
     setName(t.name);
     setEmail(t.email);
     setKelas(t.kelas || "");
+    setPassword("");
     setModal("edit");
   };
 
   const openAdd = () => {
     setSelectedTeacher(null);
-    setName(""); setEmail(""); setKelas("Tahun 4 & 5");
+    setName(""); setEmail(""); setKelas("Tahun 4 & 5"); setPassword("");
     setModal("add");
   };
 
@@ -28,12 +30,14 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
     if (!name.trim() || !email.trim()) return;
     try {
       if (modal === "add") {
-        await TeacherRepository.create({ name, email, kelas, school_slug: schoolSlug });
+        await TeacherRepository.create({ name, email, kelas, school_slug: schoolSlug, password: password || "password123" });
       } else if (modal === "edit" && selectedTeacher) {
-        await TeacherRepository.update(selectedTeacher.id, { name, email, kelas });
+        const updates = { name, email, kelas };
+        if (password) updates.password = password;
+        await TeacherRepository.update(selectedTeacher.id, updates);
       }
       setModal(null);
-      setName(""); setEmail(""); setKelas("Tahun 4 & 5");
+      setName(""); setEmail(""); setKelas("Tahun 4 & 5"); setPassword("");
       onRefresh();
     } catch (e) {
       alert("Gagal: " + e.message);
@@ -119,8 +123,9 @@ export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
                   <label>Kelas Kendalian</label>
                   <input className="input" value={kelas} onChange={(e) => setKelas(e.target.value)} required />
                 </div>
-                <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 4 }}>
-                  * Kata laluan lalai akaun guru baru didaftarkan adalah: <strong>password123</strong>
+                <div className="field">
+                  <label>{modal === "add" ? "Kata Laluan" : "Kata Laluan Baharu (kosong = kekalkan)"}</label>
+                  <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={modal === "add" ? "Lalai: password123" : "Biarkan kosong jika tiada perubahan"} />
                 </div>
               </div>
               <div className="modal-foot">

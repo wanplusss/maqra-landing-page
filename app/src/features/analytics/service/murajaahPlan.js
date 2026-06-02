@@ -8,7 +8,7 @@ export const MurajaahPlan = {
     if (!student) return [];
 
     const records = await TasmikRepository.getRecordsForStudent(studentId);
-    const today = new Date(2026, 4, 30); // system Baseline Date
+    const today = new Date(); // system Baseline Date
 
     const plan = [];
 
