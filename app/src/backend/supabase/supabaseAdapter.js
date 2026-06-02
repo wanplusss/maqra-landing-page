@@ -222,6 +222,17 @@ export const supabaseAdapter = {
     return data;
   },
 
+  async getPlatformOwnerByEmail(email) {
+    checkActive();
+    const { data, error } = await supabase
+      .from("platform_owners")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
   async getSchoolByAdminEmail(email) {
     checkActive();
     const { data, error } = await supabase

@@ -37,20 +37,22 @@ export const authService = {
 
     // --- Supabase credential mode (Option A: admin_email/admin_password in schools table) ---
     if (IS_SUPABASE_CONFIGURED) {
-      // Superadmin check
-      const db = getMockDb();
-      if (email.toLowerCase() === db.superadmin.email.toLowerCase()) {
-        if (password === db.superadmin.password) {
+      // Superadmin check via platform_owners table
+      try {
+        const owner = await supabaseAdapter.getPlatformOwnerByEmail(email.toLowerCase());
+        if (owner) {
+          if (password !== owner.password) throw new Error("Kata laluan pemilik tidak sah");
           const session = {
             token: "mock_jwt_superadmin_" + Date.now(),
-            email: db.superadmin.email,
+            email: owner.email,
             role: ROLES.SUPERADMIN,
-            name: db.superadmin.name
+            name: owner.name
           };
           localStorage.setItem("maqra_session", JSON.stringify(session));
           return session;
         }
-        throw new Error("Kata laluan pemilik tidak sah");
+      } catch (e) {
+        if (e.message === "Kata laluan pemilik tidak sah") throw e;
       }
 
       // Admin check via schools table
