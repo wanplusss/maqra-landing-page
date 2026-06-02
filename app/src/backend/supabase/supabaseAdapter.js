@@ -286,5 +286,23 @@ export const supabaseAdapter = {
       .single();
     if (error) throw error;
     return data;
-  }
+  },
+
+  // ---- REALTIME ----
+  subscribeToStudents(onUpdate) {
+    if (!supabase) return null;
+    return supabase
+      .channel("students-changes")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "students" },
+        (payload) => onUpdate(payload.new)
+      )
+      .subscribe();
+  },
+
+  unsubscribeFromStudents(channel) {
+    if (!supabase || !channel) return;
+    supabase.removeChannel(channel);
+  },
 };

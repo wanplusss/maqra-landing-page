@@ -27,6 +27,7 @@ import { SchoolRepository } from "./features/school/repository/SchoolRepository.
 import { MaqraGridService } from "./features/maqra/service/MaqraGridService.js";
 import { TasmikRepository } from "./features/tasmik/repository/TasmikRepository.js";
 import { authService } from "./features/auth/authService.js";
+import { useRealtimeStudents } from "./backend/supabase/useRealtimeStudents.js";
 
 function Chrome({ persona, setPersona, path, schoolName }) {
   const personas = [
@@ -110,6 +111,23 @@ function MainAppContent() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
+
+  const handleRealtimeStudentUpdate = useCallback((updatedStudent) => {
+    setStudents((prev) =>
+      prev.map((s) => {
+        if (s.id !== updatedStudent.id) return s;
+        const grid = MaqraGridService.buildGrid(updatedStudent);
+        return {
+          ...updatedStudent,
+          progress: grid.progressPercent,
+          juzuk: grid.frontier > 0 ? Math.floor(grid.frontier / 20) + 1 : 1,
+          surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+        };
+      })
+    );
+  }, []);
+
+  useRealtimeStudents(handleRealtimeStudentUpdate);
 
   // Fetch basic lists
   useEffect(() => {
