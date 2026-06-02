@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TeacherRepository } from "../teacher/repository/TeacherRepository.js";
 import { Icon, Avatar } from "../../components/Shared.jsx";
 
-export function TeacherManagement({ teachers = [], onRefresh }) {
+export function TeacherManagement({ teachers = [], schoolSlug, onRefresh }) {
   const [modal, setModal] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,7 +17,8 @@ export function TeacherManagement({ teachers = [], onRefresh }) {
       await TeacherRepository.create({
         name,
         email,
-        kelas
+        kelas,
+        school_slug: schoolSlug,
       });
       setModal(false);
       setName("");

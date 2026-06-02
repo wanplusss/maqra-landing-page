@@ -131,10 +131,10 @@ function MainAppContent() {
   // Fetch basic lists
   useEffect(() => {
     async function load() {
-      const [studs, tea, sch] = await Promise.all([
-        StudentRepository.listAll(),
-        TeacherRepository.listAll(),
-        SchoolRepository.getProfile(),
+      const sch = await SchoolRepository.getProfile();
+      const [studs, tea] = await Promise.all([
+        StudentRepository.listAll(sch.slug),
+        TeacherRepository.listAll(sch.slug),
       ]);
 
       const resolvedStuds = studs.map((st) => {
@@ -413,15 +413,17 @@ function MainAppContent() {
                       />
                     )}
                     {adminView === "pelajar" && (
-                      <StudentManagement 
-                        students={students} 
-                        onRefresh={triggerRefresh} 
+                      <StudentManagement
+                        students={students}
+                        schoolSlug={school.slug}
+                        onRefresh={triggerRefresh}
                       />
                     )}
                     {adminView === "guru" && (
-                      <TeacherManagement 
-                        teachers={teachers} 
-                        onRefresh={triggerRefresh} 
+                      <TeacherManagement
+                        teachers={teachers}
+                        schoolSlug={school.slug}
+                        onRefresh={triggerRefresh}
                       />
                     )}
                     {adminView === "profil" && <SchoolEditor />}
