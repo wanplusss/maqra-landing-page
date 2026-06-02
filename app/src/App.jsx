@@ -29,7 +29,7 @@ import { TasmikRepository } from "./features/tasmik/repository/TasmikRepository.
 import { authService } from "./features/auth/authService.js";
 import { useRealtimeStudents } from "./backend/supabase/useRealtimeStudents.js";
 
-function Chrome({ persona, setPersona, path }) {
+function Chrome({ persona, setPersona, path, slug }) {
   const personas = [
     { key: "parent", label: "Ibu Bapa", icon: "users" },
     { key: "teacher", label: "Guru", icon: "cap" },
@@ -48,7 +48,7 @@ function Chrome({ persona, setPersona, path }) {
           {isOwner ? (
             <><span className="dim">maqra.app</span><span className="hot">/platform</span><span className="dim">{path}</span></>
           ) : (
-            <><span className="dim">maqra.app/school/</span><span className="hot">al-furqan</span><span className="dim">{path}</span></>
+            <><span className="dim">maqra.app/school/</span><span className="hot">{slug || "al-furqan"}</span><span className="dim">{path}</span></>
           )}
         </span>
       </div>
@@ -226,7 +226,7 @@ function MainAppContent() {
 
   return (
     <div className="app">
-      <Chrome persona={persona} setPersona={(p) => { setPersona(p); logoutAll(); }} path={path} schoolName={school.name} />
+      <Chrome persona={persona} setPersona={(p) => { setPersona(p); logoutAll(); }} path={path} schoolName={school.name} slug={school.slug} />
       
       <div className="viewport scroll">
         <ErrorBoundary flowKey={persona}>
@@ -260,9 +260,9 @@ function MainAppContent() {
               ============================================== */}
           {persona === "teacher" && (
             !teacherSession ? (
-              <TeacherLogin 
-                role="teacher" 
-                slug="al-furqan"
+              <TeacherLogin
+                role="teacher"
+                slug={school.slug || "al-furqan"}
                 defaultEmail="aisyah@alfurqan.edu.my"
                 onLoginSuccess={(session) => setTeacherSession(session)} 
               />
@@ -385,9 +385,9 @@ function MainAppContent() {
               ============================================== */}
           {persona === "admin" && (
             !adminSession ? (
-              <TeacherLogin 
-                role="admin" 
-                slug="al-furqan"
+              <TeacherLogin
+                role="admin"
+                slug={school.slug || "al-furqan"}
                 defaultEmail="admin@alfurqan.edu.my"
                 onLoginSuccess={(session) => setAdminSession(session)} 
               />
