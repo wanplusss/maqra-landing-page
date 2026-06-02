@@ -24,7 +24,7 @@ export function UpdateModal({ student, page, onSave, onClose }) {
       gred,
       ulasan: ulasan || "Bacaan memuaskan.",
       masalah: masalah || "—",
-      cadangan: cadangan || "Teruskan hafazan seterusnya."
+      cadangan: cadangan || "Sambung juz seterusnya."
     });
   };
 

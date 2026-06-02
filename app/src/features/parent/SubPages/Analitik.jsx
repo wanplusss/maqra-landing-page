@@ -206,7 +206,7 @@ export function Analitik({ st }) {
       juzuk: juzNum,
       ulasan: "Selesai murajaah juzuk kendiri dengan baik.",
       masalah: "—",
-      cadangan: "Teruskan hafazan seterusnya.",
+      cadangan: "Sambung juz seterusnya.",
       guru: "Guru Bimbingan"
     });
 
