@@ -11,22 +11,24 @@ export const TeacherRepository = {
     return db.teachers.find((t) => t.email.toLowerCase() === email.toLowerCase()) || null;
   },
 
-  async listAll() {
+  async listAll(schoolSlug) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.listAllTeachers();
+      return await supabaseAdapter.listAllTeachers(schoolSlug);
     }
     const db = getMockDb();
-    return [...db.teachers];
+    const all = [...db.teachers];
+    return schoolSlug ? all.filter(t => t.school_slug === schoolSlug) : all;
   },
 
   async create(teacher) {
+    // teacher must include school_slug
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.createTeacher(teacher);
     }
     const db = getMockDb();
     const newTeacher = {
       id: "t" + (db.teachers.length + 1),
-      password: "password123", // default password
+      password: "password123",
       ...teacher
     };
     db.teachers.push(newTeacher);

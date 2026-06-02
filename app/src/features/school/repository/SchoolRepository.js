@@ -19,6 +19,16 @@ export const SchoolRepository = {
     return [...db.schools];
   },
 
+  async create(school) {
+    if (IS_SUPABASE_CONFIGURED) {
+      return await supabaseAdapter.createSchool(school);
+    }
+    const db = getMockDb();
+    db.schools.push(school);
+    saveMockDb(db);
+    return school;
+  },
+
   async updateProfile(slug, updates) {
     if (IS_SUPABASE_CONFIGURED) {
       return await supabaseAdapter.updateSchoolProfile(slug, updates);
