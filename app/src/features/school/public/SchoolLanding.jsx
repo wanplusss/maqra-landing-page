@@ -81,7 +81,7 @@ export function SchoolLanding({ onEnterLookup }) {
             {[
               ["Tahun ditubuhkan", school.founded || 2016],
               ["Pelajar berdaftar", `${school.enrolled || 6} orang`],
-              ["Tenaga pengajar", `${school.teachers || "—"} orang Asatizah`]
+              ["Tenaga pengajar", `${school.teachers || "—"} Asatizah`]
             ].map(([k, v]) => (
               <div key={k}>
                 <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", whiteSpace: "nowrap" }}>{v}</div>
