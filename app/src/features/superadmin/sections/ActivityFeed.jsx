@@ -1,5 +1,9 @@
+import { useMemo } from "react";
+
 export function ActivityFeed({ schools, activityMap }) {
-  const sorted = [...schools]
+  const now = useMemo(() => Date.now(), []);
+
+  const sorted = useMemo(() => [...schools]
     .map((s) => ({ ...s, lastActivity: activityMap[s.slug] ?? null }))
     .sort((a, b) => {
       if (!a.lastActivity && !b.lastActivity) return 0;
@@ -7,11 +11,11 @@ export function ActivityFeed({ schools, activityMap }) {
       if (!b.lastActivity) return -1;
       return new Date(b.lastActivity) - new Date(a.lastActivity);
     })
-    .slice(0, 8);
+    .slice(0, 8), [schools, activityMap]);
 
   const formatDate = (iso) => {
     if (!iso) return "Tiada rekod";
-    const days = Math.floor((Date.now() - new Date(iso)) / 86400000);
+    const days = Math.floor((now - new Date(iso)) / 86400000);
     if (days === 0) return "Hari ini";
     if (days === 1) return "Semalam";
     return `${days} hari lalu`;

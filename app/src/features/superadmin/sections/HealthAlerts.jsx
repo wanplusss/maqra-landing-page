@@ -1,13 +1,15 @@
+import { useMemo } from "react";
+
 const CHURN_DAYS = 30;
 
 export function HealthAlerts({ schools, activityMap }) {
-  const cutoff = Date.now() - CHURN_DAYS * 86400000;
+  const cutoff = useMemo(() => Date.now() - CHURN_DAYS * 86400000, []);
 
-  const atRisk = schools.filter((s) => {
+  const atRisk = useMemo(() => schools.filter((s) => {
     const last = activityMap[s.slug];
     if (!last) return true;
     return new Date(last).getTime() < cutoff;
-  });
+  }), [schools, activityMap, cutoff]);
 
   if (atRisk.length === 0) {
     return (
@@ -32,7 +34,7 @@ export function HealthAlerts({ schools, activityMap }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {atRisk.map((s) => {
           const last = activityMap[s.slug];
-          const days = last ? Math.floor((Date.now() - new Date(last)) / 86400000) : null;
+          const days = last ? Math.floor((cutoff + CHURN_DAYS * 86400000 - new Date(last).getTime()) / 86400000) : null;
           return (
             <div key={s.slug} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
               <span style={{ fontWeight: 600 }}>{s.name}</span>
