@@ -237,7 +237,7 @@ export function Analitik({ st, plan = "Percubaan" }) {
   // Feature gate — wrap entire analytics content
   if (plan !== "Premium") {
     return (
-      <PlanGate feature="analitikPenuh" plan={plan}>
+      <PlanGate feature="analitikPenuh" plan={plan} audience="parent">
         <div style={{ minHeight: 400, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12, padding: 40 }}>
           <Icon name="sparkle" size={32} style={{ color: "var(--accent)", opacity: 0.5 }} />
           <div style={{ fontWeight: 700, fontSize: 16 }}>Analitik Hafazan Penuh</div>

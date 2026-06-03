@@ -2,6 +2,7 @@ import { useState } from "react";
 import { hasFeature, PLANS } from "../superadmin/planConfig.js";
 import { Icon } from "../../components/Shared.jsx";
 
+// Admin audience: shows pricing + upgrade CTA
 function UpgradeModal({ feature, onClose }) {
   const requiredPlan = Object.keys(PLANS).find(
     (p) => PLANS[p].features?.[feature]
@@ -45,7 +46,6 @@ function UpgradeModal({ feature, onClose }) {
               </div>
             </div>
           </div>
-
           <p style={{ margin: 0, fontSize: 13, color: "var(--ink-3)", lineHeight: 1.6 }}>
             Hubungi kami untuk menaik taraf pelan anda. Proses naik taraf biasanya selesai dalam 1 hari bekerja.
           </p>
@@ -66,25 +66,59 @@ function UpgradeModal({ feature, onClose }) {
   );
 }
 
+// Parent audience: no pricing, no upgrade CTA — just inform
+function UnavailableNote({ onClose }) {
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div>
+            <h3>Ciri Tidak Tersedia</h3>
+          </div>
+          <button className="iconbtn" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <p style={{ margin: 0, fontSize: 13.5, color: "var(--ink-2)", lineHeight: 1.7 }}>
+            Ciri ini tidak diaktifkan untuk maahad anak anda pada masa ini.
+            Sila hubungi pentadbir maahad untuk maklumat lanjut.
+          </p>
+        </div>
+        <div className="modal-foot">
+          <button className="btn btn-primary" onClick={onClose}>Faham</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Wraps children. If plan does not include feature, shows a lock overlay.
- * Clicking the overlay opens an upgrade modal.
  *
- * @param {{ feature: string, plan: string, children: React.ReactNode }} props
+ * @param {{
+ *   feature: string,
+ *   plan: string,
+ *   audience: 'admin' | 'parent',
+ *   children: React.ReactNode
+ * }} props
+ *
+ * audience="admin" (default) — shows pricing + upgrade modal
+ * audience="parent"          — shows simple "not available" note, no pricing
  */
-export function PlanGate({ feature, plan, children }) {
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
+export function PlanGate({ feature, plan, audience = "admin", children }) {
+  const [modalOpen, setModalOpen] = useState(false);
 
   if (hasFeature(plan, feature)) {
     return children;
   }
 
+  const overlayLabel = audience === "parent" ? "Tidak tersedia" : "Naik Taraf";
+
   return (
     <>
       <div
-        onClick={() => setUpgradeOpen(true)}
+        onClick={() => setModalOpen(true)}
         style={{ position: "relative", cursor: "pointer", display: "inline-block" }}
-        title="Naik taraf untuk menggunakan ciri ini"
+        title={audience === "parent" ? "Ciri tidak tersedia untuk maahad anda" : "Naik taraf untuk menggunakan ciri ini"}
       >
         <div style={{ opacity: 0.4, pointerEvents: "none", userSelect: "none" }}>
           {children}
@@ -103,11 +137,15 @@ export function PlanGate({ feature, plan, children }) {
           color: "var(--ink-2)",
           border: "1px dashed var(--line-2)",
         }}>
-          <Icon name="lock" size={13} /> Naik Taraf
+          <Icon name="lock" size={13} /> {overlayLabel}
         </div>
       </div>
-      {upgradeOpen && (
-        <UpgradeModal feature={feature} onClose={() => setUpgradeOpen(false)} />
+
+      {modalOpen && audience === "admin" && (
+        <UpgradeModal feature={feature} onClose={() => setModalOpen(false)} />
+      )}
+      {modalOpen && audience === "parent" && (
+        <UnavailableNote onClose={() => setModalOpen(false)} />
       )}
     </>
   );

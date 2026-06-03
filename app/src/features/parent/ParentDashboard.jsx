@@ -186,7 +186,7 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
               <p>{school.name} · Pelajar: {st.name}</p>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"}>
+              <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"} audience="parent">
                 <button className="btn btn-primary" onClick={async () => {
                   await SlipPrestasiService.generatePdf(st.id);
                 }}>
@@ -229,7 +229,7 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
 
               {/* Right rail widgets */}
               <div style={{ display: "flex", flexDirection: "column", gap: 22, position: "sticky", top: 0 }}>
-                <PlanGate feature="analitikPenuh" plan={school?.plan ?? "Percubaan"}>
+                <PlanGate feature="analitikPenuh" plan={school?.plan ?? "Percubaan"} audience="parent">
                   <KhatamMini st={st} onOpen={() => setTab("analitik")} />
                 </PlanGate>
                 
@@ -243,7 +243,7 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
                   </div>
                 </div>
 
-                <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"}>
+                <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"} audience="parent">
                   <SijilCard st={st} onOpen={triggerSijilDownload} />
                 </PlanGate>
                 <RujukanCard />

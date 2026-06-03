@@ -89,14 +89,14 @@ export function ProfilAnak({ st, school }) {
         {/* Printable Report Actions */}
         <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Dokumen dan Laporan</h3>
-          <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"}>
+          <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"} audience="parent">
             <button className="btn btn-primary" onClick={printReport} disabled={printing} style={{ justifyContent: "center", width: "100%" }}>
               <Icon name="print" size={16} />
               {printing ? "Menjana Slip..." : "Cetak Slip Prestasi (PDF)"}
             </button>
           </PlanGate>
 
-          <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"}>
+          <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"} audience="parent">
             <button className="btn" onClick={downloadCertificate} disabled={downloadingCert} style={{ justifyContent: "center", width: "100%" }}>
               <Icon name="award" size={16} />
               {downloadingCert ? "Mengunduh..." : "Muat Turun Sijil Pencapaian"}
