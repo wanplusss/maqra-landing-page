@@ -3,6 +3,7 @@ import { Avatar, StatusDot, Bar, Icon } from "../../../components/Shared.jsx";
 import { STATUS } from "../../maqra/domain/statusColors.js";
 import { SlipPrestasiService } from "../SlipPrestasiService.js";
 import { SijilService } from "../../sijil/SijilService.js";
+import { PlanGate } from "../../auth/PlanGate.jsx";
 
 function Row({ k, v }) {
   return (
@@ -88,15 +89,19 @@ export function ProfilAnak({ st, school }) {
         {/* Printable Report Actions */}
         <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Dokumen dan Laporan</h3>
-          <button className="btn btn-primary" onClick={printReport} disabled={printing} style={{ justifyContent: "center" }}>
-            <Icon name="print" size={16} /> 
-            {printing ? "Menjana Slip..." : "Cetak Slip Prestasi (PDF)"}
-          </button>
-          
-          <button className="btn" onClick={downloadCertificate} disabled={downloadingCert} style={{ justifyContent: "center" }}>
-            <Icon name="award" size={16} />
-            {downloadingCert ? "Mengunduh..." : "Muat Turun Sijil Pencapaian"}
-          </button>
+          <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"}>
+            <button className="btn btn-primary" onClick={printReport} disabled={printing} style={{ justifyContent: "center", width: "100%" }}>
+              <Icon name="print" size={16} />
+              {printing ? "Menjana Slip..." : "Cetak Slip Prestasi (PDF)"}
+            </button>
+          </PlanGate>
+
+          <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"}>
+            <button className="btn" onClick={downloadCertificate} disabled={downloadingCert} style={{ justifyContent: "center", width: "100%" }}>
+              <Icon name="award" size={16} />
+              {downloadingCert ? "Mengunduh..." : "Muat Turun Sijil Pencapaian"}
+            </button>
+          </PlanGate>
         </div>
 
         {/* Student metadata Details */}
