@@ -83,6 +83,74 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+function SchoolPicker({ onSelect }) {
+  const [schools, setSchools] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    SchoolRepository.listAllSchools()
+      .then((list) => setSchools(list.filter((s) => s.status !== "tidak aktif")))
+      .catch(() => setSchools([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = schools.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.city || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div style={{ display: "grid", placeItems: "center", minHeight: "80vh", padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: 480 }} className="animate-up">
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+          <Wordmark size={24} />
+        </div>
+        <div className="card" style={{ padding: 28 }}>
+          <h3 style={{ margin: "0 0 6px", fontSize: 17, fontWeight: 800, textAlign: "center" }}>Pilih Institusi</h3>
+          <p style={{ margin: "0 0 18px", color: "var(--ink-3)", fontSize: 13.5, textAlign: "center" }}>
+            Pilih maahad anak anda untuk melihat perkembangan hafazan.
+          </p>
+          <div className="search" style={{ marginBottom: 14 }}>
+            <span className="ic"><Icon name="search" size={16} /></span>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari nama maahad atau bandar..."
+              autoFocus
+            />
+          </div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: 24, color: "var(--ink-3)", fontSize: 13 }}>Memuatkan...</div>
+          ) : filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 24, color: "var(--ink-3)", fontSize: 13 }}>Tiada institusi dijumpai.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {filtered.map((s) => (
+                <button
+                  key={s.slug}
+                  className="btn"
+                  onClick={() => onSelect(s.slug)}
+                  style={{ justifyContent: "flex-start", gap: 14, padding: "12px 16px", textAlign: "left" }}
+                >
+                  <span style={{ width: 36, height: 36, borderRadius: 10, background: "var(--accent-soft)", color: "var(--accent-deep)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                    <Icon name="school" size={18} />
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 700, fontSize: 14 }}>{s.name}</span>
+                    {s.city && <span style={{ display: "block", fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>{s.city}</span>}
+                  </span>
+                  <Icon name="arrowR" size={15} style={{ color: "var(--ink-3)", flexShrink: 0 }} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MainAppContent() {
   const [t, setTweak] = useTweaks();
   const [persona, setPersona] = useState("parent");
@@ -103,6 +171,9 @@ function MainAppContent() {
 
   // Platform Owner States
   const [ownerSession, setOwnerSession] = useState(null);
+
+  // Parent school selection
+  const [selectedSchoolSlug, setSelectedSchoolSlug] = useState(null);
 
   // General Database Triggers to reload lists
   const [students, setStudents] = useState([]);
@@ -243,13 +314,15 @@ function MainAppContent() {
               ============================================== */}
           {persona === "parent" && (
             activeStudentId ? (
-              <ParentDashboard 
-                studentId={activeStudentId} 
-                columns={columns} 
-                onLogout={() => setActiveStudentId(null)} 
+              <ParentDashboard
+                studentId={activeStudentId}
+                columns={columns}
+                onLogout={() => { setActiveStudentId(null); setSelectedSchoolSlug(null); }}
               />
-            ) : (
-              <SchoolLanding 
+            ) : selectedSchoolSlug ? (
+              <SchoolLanding
+                slug={selectedSchoolSlug}
+                onBack={() => setSelectedSchoolSlug(null)}
                 onEnterLookup={async (id) => {
                   const s = await StudentRepository.getById(id);
                   if (s) {
@@ -257,8 +330,10 @@ function MainAppContent() {
                     return s;
                   }
                   return null;
-                }} 
+                }}
               />
+            ) : (
+              <SchoolPicker onSelect={setSelectedSchoolSlug} />
             )
           )}
 
@@ -276,8 +351,8 @@ function MainAppContent() {
             ) : teacherSelectedStudent ? (
               <div className="shell" style={{ minHeight: "100vh" }}>
                 <main className="main" style={{ padding: "20px 24px" }}>
-                  <StudentDashboard 
-                    st={teacherSelectedStudent}
+                  <StudentDashboard
+                    st={students.find(s => s.id === teacherSelectedStudent.id) || teacherSelectedStudent}
                     school={school}
                     columns={columns}
                     onBack={() => setTeacherSelectedStudent(null)}

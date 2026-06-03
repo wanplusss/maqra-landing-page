@@ -5,7 +5,7 @@ import { StudentRepository } from "../../student/repository/StudentRepository.js
 import { PengumumanService } from "../../pengumuman/service/PengumumanService.js";
 import { Wordmark, Icon, FauxQR, DuitNowQR } from "../../../components/Shared.jsx";
 
-export function SchoolLanding({ onEnterLookup }) {
+export function SchoolLanding({ slug, onEnterLookup, onBack }) {
   const [school, setSchool] = useState(null);
   const [anns, setAnns] = useState([]);
   const [sid, setSid] = useState("");
@@ -14,7 +14,7 @@ export function SchoolLanding({ onEnterLookup }) {
 
   useEffect(() => {
     async function load() {
-      const data = await SchoolRepository.getProfile();
+      const data = await SchoolRepository.getProfile(slug);
       const [activeAnns, teachers, students] = await Promise.all([
         PengumumanService.getActiveAnnouncements(data.slug).catch((e) => { console.error("[SchoolLanding] announcements:", e); return []; }),
         TeacherRepository.listAll(data.slug).catch((e) => { console.error("[SchoolLanding] teachers:", e); return []; }),
@@ -59,8 +59,19 @@ export function SchoolLanding({ onEnterLookup }) {
       
       {/* Brand header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-        <Wordmark />
-        <span className="badge"><Icon name="pin" size={13} /> {school.address.split(",").slice(-2).join(",").trim()}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Wordmark />
+          {onBack && (
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={onBack}
+              style={{ fontSize: 12.5 }}
+            >
+              ← Tukar Sekolah
+            </button>
+          )}
+        </div>
+        <span className="badge"><Icon name="pin" size={13} /> {school.address?.split(",").slice(-2).join(",").trim() || school.city || ""}</span>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: 28, alignItems: "start" }}>
