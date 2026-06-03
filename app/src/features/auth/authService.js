@@ -4,6 +4,7 @@ import { supabaseAdapter } from "../../backend/supabase/supabaseAdapter.js";
 import { TeacherRepository } from "../teacher/repository/TeacherRepository.js";
 import { getMockDb } from "../../backend/mockDb.js";
 import { ROLES } from "./roles.js";
+import { checkSchoolAccess } from "../superadmin/planConfig.js";
 
 export const authService = {
   async login(email, password) {
@@ -59,6 +60,10 @@ export const authService = {
       try {
         const school = await supabaseAdapter.getSchoolByAdminEmail(email.toLowerCase());
         if (school) {
+          // Check suspension / trial expiry before password
+          const access = checkSchoolAccess(school);
+          if (!access.allowed) throw new Error(access.message);
+
           if (password === school.admin_password) {
             const session = {
               token: "mock_jwt_admin_" + Date.now(),
@@ -66,6 +71,8 @@ export const authService = {
               role: ROLES.ADMIN,
               name: "Pentadbir " + school.name,
               schoolSlug: school.slug,
+              plan: school.plan || "Percubaan",
+              status: school.status || "aktif",
             };
             localStorage.setItem("maqra_session", JSON.stringify(session));
             return session;
@@ -74,12 +81,31 @@ export const authService = {
         }
       } catch (e) {
         if (e.message === "Kata laluan pentadbir tidak sah") throw e;
+        if (e.message?.includes("digantung") || e.message?.includes("tamat")) throw e;
         // DB error — fall through to teacher check
       }
 
       // Teacher check via DB
       const teacher = await TeacherRepository.findByEmail(email);
       if (teacher) {
+        // Check school suspension for teacher's school
+        let teacherPlan = "Percubaan";
+        let teacherStatus = "aktif";
+        if (teacher.school_slug) {
+          try {
+            const school = await supabaseAdapter.getSchoolProfile(teacher.school_slug);
+            if (school) {
+              const access = checkSchoolAccess(school);
+              if (!access.allowed) throw new Error(access.message);
+              teacherPlan = school.plan || "Percubaan";
+              teacherStatus = school.status || "aktif";
+            }
+          } catch (e) {
+            if (e.message?.includes("digantung") || e.message?.includes("tamat")) throw e;
+            // DB error — degrade gracefully, allow login
+          }
+        }
+
         if (password === teacher.password || password === "password123") {
           const session = {
             token: "mock_jwt_teacher_" + teacher.id + "_" + Date.now(),
@@ -89,6 +115,8 @@ export const authService = {
             name: teacher.name,
             kelas: teacher.kelas,
             schoolSlug: teacher.school_slug,
+            plan: teacherPlan,
+            status: teacherStatus,
           };
           localStorage.setItem("maqra_session", JSON.stringify(session));
           return session;
