@@ -12,6 +12,7 @@ import { TasmikRepository } from "../tasmik/repository/TasmikRepository.js";
 import { MaqraGridService } from "../maqra/service/MaqraGridService.js";
 import { SijilService } from "../sijil/SijilService.js";
 import { SlipPrestasiService } from "./SlipPrestasiService.js";
+import { PlanGate } from "../auth/PlanGate.jsx";
 
 // Right rail small widgets
 function KhatamMini({ st, onOpen }) {
@@ -185,11 +186,13 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
               <p>{school.name} · Pelajar: {st.name}</p>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button className="btn btn-primary" onClick={async () => {
-                await SlipPrestasiService.generatePdf(st.id);
-              }}>
-                <Icon name="print" size={15} /> Cetak Slip Prestasi
-              </button>
+              <PlanGate feature="laporanPDF" plan={school?.plan ?? "Percubaan"}>
+                <button className="btn btn-primary" onClick={async () => {
+                  await SlipPrestasiService.generatePdf(st.id);
+                }}>
+                  <Icon name="print" size={15} /> Cetak Slip Prestasi
+                </button>
+              </PlanGate>
             </div>
           </div>
 
@@ -226,7 +229,9 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
 
               {/* Right rail widgets */}
               <div style={{ display: "flex", flexDirection: "column", gap: 22, position: "sticky", top: 0 }}>
-                <KhatamMini st={st} onOpen={() => setTab("analitik")} />
+                <PlanGate feature="analitikPenuh" plan={school?.plan ?? "Percubaan"}>
+                  <KhatamMini st={st} onOpen={() => setTab("analitik")} />
+                </PlanGate>
                 
                 <div className="card" style={{ padding: 20 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -238,7 +243,9 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
                   </div>
                 </div>
 
-                <SijilCard st={st} onOpen={triggerSijilDownload} />
+                <PlanGate feature="sijilPDF" plan={school?.plan ?? "Percubaan"}>
+                  <SijilCard st={st} onOpen={triggerSijilDownload} />
+                </PlanGate>
                 <RujukanCard />
               </div>
             </div>
