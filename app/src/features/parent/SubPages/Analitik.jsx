@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Icon, Bar } from "../../../components/Shared.jsx";
 import { AnalyticsService } from "../../analytics/service/AnalyticsService.js";
 import { TasmikRepository } from "../../tasmik/repository/TasmikRepository.js";
+import { PlanGate } from "../../auth/PlanGate.jsx";
 
 const strengthBand = (s) => {
   if (s >= 70) return { key: "kukuh", label: "Kukuh", css: "hafazan" };
@@ -72,7 +73,7 @@ function ProjectionChart({ st, analytics }) {
       <circle cx={xT(tEnd)} cy={yP(604)} r="5" fill="none" stroke="var(--accent)" strokeWidth="2" />
       
       <text x={xT(tNow)} y={H - 8} textAnchor="middle" fontSize="10" fill="var(--ink-2)" fontWeight="700">Kini</text>
-      <text x={xT(t0)} y={H - 8} textAnchor="start" fontSize="10" fill="var(--ink-3)" fontFamily="var(--font-mono)">{new Date(st.enroll).getFullYear()}</text>
+      <text x={xT(t0)} y={H - 8} textAnchor="start" fontSize="10" fill="var(--ink-3)" fontFamily="var(--font-mono)">{st.enroll ? new Date(st.enroll).getFullYear() : ""}</text>
       <text x={W - padR} y={H - 8} textAnchor="end" fontSize="10" fill="var(--accent-deep)" fontWeight="700">
         {analytics.khatamDate ? analytics.khatamDate.split(" ")[1] + " " + analytics.khatamDate.split(" ")[2] : "—"}
       </text>
@@ -102,9 +103,10 @@ function Ring({ pct, size = 132, stroke = 13, color = "var(--accent)", children 
 }
 
 /* ---------- 3. Year Trend Line Chart component ---------- */
-function LineChart({ rows, pick, yLabel, niceStep, nowMonth }) {
+function LineChart({ rows, pick, yLabel, niceStep, nowMonth, chartId = "lc" }) {
   const W = 660, H = 250, padL = 46, padR = 18, padT = 18, padB = 30;
   const innerW = W - padL - padR, innerH = H - padT - padB;
+  const gradId = `lf-${chartId}`;
 
   const target = rows.map((d) => pick(d).target);
   const actual = rows.map((d) => pick(d).actual);
@@ -119,13 +121,18 @@ function LineChart({ rows, pick, yLabel, niceStep, nowMonth }) {
 
   const path = (arr) => arr.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
 
-  const SERIES = [
-    { key: "target", color: "var(--ink-3)", arr: target, dash: "5 5", r: 3.2 },
-    { key: "actual", color: "var(--accent)", arr: actual, dash: "", r: 3.8 }
-  ];
+  const lastActualIdx = actual.reduce((last, v, i) => v != null ? i : last, -1);
+  const actualPast = actual.slice(0, lastActualIdx + 1).map(v => v ?? 0);
+  const areaPoints = `${x(0).toFixed(1)},${y(0).toFixed(1)} ${path(actualPast)} ${x(lastActualIdx).toFixed(1)},${y(0).toFixed(1)}`;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: "block", overflow: "visible" }}>
+      <defs>
+        <linearGradient id={`${gradId}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       {ticks.map((t) => (
         <g key={t}>
           <line x1={padL} y1={y(t)} x2={W - padR} y2={y(t)} stroke="var(--line-2)" strokeWidth="1" />
@@ -139,19 +146,27 @@ function LineChart({ rows, pick, yLabel, niceStep, nowMonth }) {
       ))}
       {nowMonth != null && nowMonth >= 0 && (
         <line x1={x(nowMonth)} y1={padT} x2={x(nowMonth)} y2={H - padB}
-          stroke="var(--ink-3)" strokeWidth="1" strokeDasharray="2 3" strokeOpacity="0.4" />
+          stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 3" strokeOpacity="0.35" />
       )}
       <text transform={`rotate(-90 12 ${padT + innerH / 2})`} x={12} y={padT + innerH / 2}
         textAnchor="middle" fontSize="10.5" fill="var(--ink-3)" fontWeight="600">{yLabel}</text>
-      {SERIES.map((s) => (
-        <g key={s.key}>
-          <polyline points={path(s.arr)} fill="none" stroke={s.color} strokeWidth="2.2"
-            strokeLinejoin="round" strokeLinecap="round" strokeDasharray={s.dash}
-            strokeOpacity={s.key === "target" ? 0.85 : 1} />
-          {s.arr.map((v, i) => (
-            <circle key={i} cx={x(i)} cy={y(v)} r={s.r} fill="var(--surface)" stroke={s.color} strokeWidth="2" />
-          ))}
-        </g>
+      {/* target line — subtle dashed, no dots */}
+      <polyline points={path(target)} fill="none" stroke="var(--ink-3)" strokeWidth="1.6"
+        strokeLinejoin="round" strokeLinecap="round" strokeDasharray="5 4" strokeOpacity="0.55" />
+      {/* area fill under actual (past only) */}
+      {lastActualIdx >= 0 && <polygon points={areaPoints} fill={`url(#${gradId})`} />}
+      {/* actual line — past only */}
+      {lastActualIdx >= 0 && (
+        <polyline points={path(actualPast)} fill="none" stroke="var(--accent)" strokeWidth="2.5"
+          strokeLinejoin="round" strokeLinecap="round" />
+      )}
+      {/* key dots on actual */}
+      {actual.map((v, i) => (
+        v != null && (i === nowMonth || i === 0 || i === lastActualIdx) && (
+          <circle key={i} cx={x(i)} cy={y(v)} r={i === nowMonth ? 5 : 3.5}
+            fill={i === nowMonth ? "var(--accent)" : "var(--surface)"}
+            stroke="var(--accent)" strokeWidth="2" />
+        )
       ))}
     </svg>
   );
@@ -173,7 +188,7 @@ function ChartLegend({ items }) {
   );
 }
 
-export function Analitik({ st }) {
+export function Analitik({ st, plan = "Percubaan" }) {
   const [predictions, setPredictions] = useState(null);
   const [targetVsAchieved, setTargetVsAchieved] = useState(null);
   const [murajaahPlan, setMurajaahPlan] = useState([]);
@@ -219,29 +234,47 @@ export function Analitik({ st }) {
     return <div className="empty" style={{ padding: "80px 20px" }}>Mengira statistik analitik pelajar...</div>;
   }
 
+  // Feature gate — wrap entire analytics content
+  if (plan !== "Premium") {
+    return (
+      <PlanGate feature="analitikPenuh" plan={plan}>
+        <div style={{ minHeight: 400, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12, padding: 40 }}>
+          <Icon name="sparkle" size={32} style={{ color: "var(--accent)", opacity: 0.5 }} />
+          <div style={{ fontWeight: 700, fontSize: 16 }}>Analitik Hafazan Penuh</div>
+          <div style={{ color: "var(--ink-3)", fontSize: 13 }}>Ramalan khatam, sasaran, pelan murajaah</div>
+        </div>
+      </PlanGate>
+    );
+  }
+
   // Visual averages
   const dueCount = murajaahPlan.filter((r) => (revisedJuz[r.juzuk] ? 100 : r.strength) < 70).length;
   const avgStrength = Math.round(
     murajaahPlan.reduce((s, r) => s + (revisedJuz[r.juzuk] ? 100 : r.strength), 0) / Math.max(murajaahPlan.length, 1)
   );
 
-  // Generate Year Trend Series Data (Deterministic but dynamic)
-  const yr = 2026;
+  // Generate Year Trend Series Data
+  const today = new Date();
+  const yr = today.getFullYear();
+  const nowMonth = today.getMonth(); // 0-indexed
   const ys = [];
   let cumActual = 0;
   let cumTarget = 0;
   const MONTHS_SHORT = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogo", "Sep", "Okt", "Nov", "Dis"];
-  
+
   for (let m = 0; m < 12; m++) {
-    const act = Math.max(5, Math.round((predictions.pace * 0.7) + ((m + st.name.charCodeAt(0)) % 6) * 2));
-    cumActual += act;
+    const isPast = m <= nowMonth;
+    const act = isPast
+      ? Math.max(5, Math.round((predictions.pace * 0.7) + ((m + st.name.charCodeAt(0)) % 6) * 2))
+      : null;
+    if (isPast) cumActual += act;
     cumTarget += st.target || 15;
     ys.push({
       label: MONTHS_SHORT[m],
       target: st.target || 15,
       actual: act,
       cumTarget,
-      cumActual
+      cumActual: isPast ? cumActual : null,
     });
   }
 
@@ -374,7 +407,7 @@ export function Analitik({ st }) {
               ]} />
             </div>
             <LineChart rows={ys} pick={(d) => ({ label: d.label, target: d.cumTarget, actual: d.cumActual })}
-              yLabel="Jumlah terkumpul (m.s.)" niceStep={100} nowMonth={4} />
+              yLabel="Jumlah terkumpul (m.s.)" niceStep={100} nowMonth={nowMonth} chartId="kumulatif" />
           </div>
           <div>
             <div style={{ marginBottom: 8 }}>
@@ -385,7 +418,7 @@ export function Analitik({ st }) {
               ]} />
             </div>
             <LineChart rows={ys} pick={(d) => ({ label: d.label, target: d.target, actual: d.actual })}
-              yLabel="Bilangan m.s." niceStep={10} nowMonth={4} />
+              yLabel="Bilangan m.s." niceStep={10} nowMonth={nowMonth} chartId="bulanan" />
           </div>
         </div>
       </div>

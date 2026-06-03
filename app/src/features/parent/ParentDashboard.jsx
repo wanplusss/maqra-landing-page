@@ -241,7 +241,7 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
             </div>
           )}
 
-          {tab === "analitik" && <Analitik st={st} />}
+          {tab === "analitik" && <Analitik st={st} plan={school?.plan ?? "Percubaan"} />}
           
           {tab === "profil" && <ProfilAnak st={st} school={school} />}
           
