@@ -16,14 +16,15 @@ export function SchoolLanding({ onEnterLookup }) {
     async function load() {
       const data = await SchoolRepository.getProfile();
       const [activeAnns, teachers, students] = await Promise.all([
-        PengumumanService.getActiveAnnouncements(data.slug),
-        TeacherRepository.listAll(data.slug),
-        StudentRepository.listAll(data.slug),
+        PengumumanService.getActiveAnnouncements(data.slug).catch((e) => { console.error("[SchoolLanding] announcements:", e); return []; }),
+        TeacherRepository.listAll(data.slug).catch((e) => { console.error("[SchoolLanding] teachers:", e); return []; }),
+        StudentRepository.listAll(data.slug).catch((e) => { console.error("[SchoolLanding] students:", e); return []; }),
       ]);
+      console.log("[SchoolLanding] teachers fetched:", teachers.length, teachers);
       setSchool({ ...data, teachers: teachers.length, enrolled: students.length });
       setAnns(activeAnns);
     }
-    load();
+    load().catch((e) => console.error("[SchoolLanding] load failed:", e));
   }, []);
 
   const handleLookup = async (e) => {
