@@ -65,9 +65,12 @@ export function SuperAdminDashboard() {
             Pelan: {selectedSchool.plan}
           </p>
         </div>
-        <SekolahDashboard onOpenStudent={(sid) => {
-          alert(`Membuka profil pelajar ${sid} — guna mod Guru/Ibu Bapa untuk interaksi penuh`);
-        }} />
+        <SekolahDashboard
+          schoolSlug={selectedSchool.slug}
+          onOpenStudent={(sid) => {
+            alert(`Membuka profil pelajar ${sid} — guna mod Guru/Ibu Bapa untuk interaksi penuh`);
+          }}
+        />
       </div>
     );
   }
