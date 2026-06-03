@@ -321,6 +321,51 @@ export const supabaseAdapter = {
     });
   },
 
+  async getLastTasmikPerSchool() {
+    checkActive();
+    // tasmik_records has no school_slug — join via students
+    const { data: students, error: sErr } = await supabase
+      .from("students")
+      .select("id, school_slug");
+    if (sErr) throw sErr;
+
+    const studentToSchool = {};
+    for (const s of students) studentToSchool[s.id] = s.school_slug;
+
+    const { data: records, error: rErr } = await supabase
+      .from("tasmik_records")
+      .select("studentId, date")
+      .order("date", { ascending: false });
+    if (rErr) throw rErr;
+
+    const latest = {};
+    for (const r of records) {
+      const slug = studentToSchool[r.studentId];
+      if (slug && !latest[slug]) latest[slug] = r.date;
+    }
+    return latest; // { school_slug: date_string }
+  },
+
+  async getStudentGrowthByMonth() {
+    checkActive();
+    const { data, error } = await supabase
+      .from("students")
+      .select("created_at")
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+
+    const map = {};
+    for (const row of data) {
+      const month = row.created_at?.slice(0, 7);
+      if (!month) continue;
+      map[month] = (map[month] || 0) + 1;
+    }
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([month, count]) => ({ month, count }));
+  },
+
   // ---- ANNOUNCEMENTS ----
   async createAnnouncement(announcement) {
     // announcement must include school_slug
@@ -408,7 +453,7 @@ export const supabaseAdapter = {
     checkActive();
     const { data, error } = await supabase
       .from("student_targets")
-      .upsert({ studentId, pagesPerMonth, updatedAt: new Date().toISOString() })
+      .upsert({ studentId, pagesPerMonth, updatedAt: new Date().toISOString() }, { onConflict: "studentId" })
       .select()
       .single();
     if (error) throw error;
