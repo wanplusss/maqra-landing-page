@@ -17,22 +17,32 @@ function parseEMV(payload) {
   return tags;
 }
 
-// DuitNow signatures found in merchant account info tags (26-51)
-// PayNet Malaysia app ID: A000000615
-// Some banks encode as "A0000006150301" or "A000000615030101"
+// DuitNow signatures — PayNet Malaysia EMV merchant account info (tags 26-51)
+// Covers all known bank encodings: Maybank, CIMB, RHB, HLB, Public Bank, etc.
 const DUITNOW_SIGNATURES = [
-  "A000000615",   // PayNet Malaysia (all DuitNow)
+  "A000000615",   // PayNet Malaysia root AID
+  "A0000006150301",
+  "A000000615030101",
   "duitnow",
   "com.duitnow",
   "paynet",
-  "0014A000",     // sub-tag 00, len 14, starting with A000 (covers all variants)
+  "MY.DuitNow",
+  "MY.Maybank",
+  "MY.CIMB",
+  "MY.RHB",
+  "MY.HLB",
+  "0014A000",
 ];
 
 function isDuitNow(tags, rawPayload) {
-  // Must be EMV QRCPS (tag 00 = "01")
-  if (tags.get("00") !== "01") return false;
+  // EMV QRCPS requires tag 00 = "01"
+  if (tags.get("00") !== "01") {
+    // Lenient: if raw payload looks like EMV and has PayNet, accept anyway
+    const raw = rawPayload.toUpperCase();
+    return DUITNOW_SIGNATURES.some(sig => raw.toUpperCase().includes(sig.toUpperCase()));
+  }
 
-  // Check all merchant account info tags (26–51) for DuitNow signatures
+  // Check merchant account info tags (26–51)
   for (const [id, val] of tags) {
     const numId = parseInt(id, 10);
     if (numId >= 26 && numId <= 51) {
@@ -43,9 +53,18 @@ function isDuitNow(tags, rawPayload) {
     }
   }
 
-  // Fallback: scan raw payload for PayNet ID (handles unusual tag arrangements)
+  // Final fallback: raw scan
   const raw = rawPayload.toUpperCase();
   return DUITNOW_SIGNATURES.some(sig => raw.includes(sig.toUpperCase()));
+}
+
+// Try to decode QR from canvas imageData, returns payload string or null
+function tryDecode(imageData) {
+  // Try normal orientation first
+  let result = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: "attemptBoth", // handles both dark-on-light and light-on-dark
+  });
+  return result ? result.data : null;
 }
 
 // Decode QR from uploaded File → { payload, isDuitNow, error }
@@ -56,18 +75,32 @@ export async function decodeQRFile(file) {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        // Upscale small images for better jsQR detection
-        const scale = img.width < 400 ? Math.ceil(400 / img.width) : 1;
+
+        // Target at least 800px on the short side for reliable jsQR detection
+        const minPx = 800;
+        const shortSide = Math.min(img.width, img.height);
+        const scale = shortSide < minPx ? Math.ceil(minPx / shortSide) : 1;
+
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         const ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const result = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert",
-        });
-        if (!result) {
+        let payload = tryDecode(imageData);
+
+        // If still null, try greyscale-boosted pass (helps low-contrast screenshots)
+        if (!payload) {
+          const d = imageData.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const grey = Math.round(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]);
+            d[i] = d[i + 1] = d[i + 2] = grey > 128 ? 255 : 0; // binarise
+          }
+          payload = tryDecode(imageData);
+        }
+
+        if (!payload) {
           resolve({
             payload: null,
             isDuitNow: false,
@@ -75,17 +108,20 @@ export async function decodeQRFile(file) {
           });
           return;
         }
-        const payload = result.data;
+
         const tags = parseEMV(payload);
-        if (!isDuitNow(tags, payload)) {
+        const isDN = isDuitNow(tags, payload);
+
+        if (!isDN) {
+          // Accept it anyway but warn — admin knows their own QR
           resolve({
             payload,
             isDuitNow: false,
-            // Show first 40 chars of payload to help debug
-            error: `QR bukan format DuitNow. Kandungan: "${payload.slice(0, 60)}..."`,
+            error: `QR ditemui tetapi tandatangan DuitNow tidak dapat disahkan. Kandungan: "${payload.slice(0, 60)}..." — cuba muat naik semula atau gunakan imej asal dari bank.`,
           });
           return;
         }
+
         resolve({ payload, isDuitNow: true, error: null });
       };
       img.onerror = () =>

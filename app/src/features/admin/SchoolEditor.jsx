@@ -16,12 +16,14 @@ function DuitNowUploader({ currentPayload, onSaved }) {
     setSuccess(false);
     const result = await decodeQRFile(file);
     setScanning(false);
-    if (result.error) {
+    if (!result.payload) {
       setErr(result.error);
       return;
     }
+    // Save even if DuitNow signature unconfirmed — show warning but don't block
     await onSaved(result.payload);
-    setSuccess(true);
+    if (result.error) setErr(result.error); // non-fatal warning
+    else setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
     // Reset input so same file can be re-uploaded
     e.target.value = "";
