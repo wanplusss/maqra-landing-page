@@ -155,16 +155,20 @@ export const slipPrestasiTemplate = {
     pdf.text("LOG TASMIK TERKINI (AKTIVITI HARIAN)", 16, 166);
 
     const startY = 171;
-    const colW = [22, 24, 20, 15, 65, 30]; // total = 176
+    // Cols: Tarikh, Kategori, Halaman, Gred, Ulasan Guru, Asatizah — total = 176
+    const colW    = [18,     22,       20,      28,    50,           38];
+    const colMax  = [8,      10,       9,       14,    26,           18]; // max chars before truncate
     const headers = ["Tarikh", "Kategori", "Halaman", "Gred", "Ulasan Guru", "Asatizah"];
-    
+
+    const trunc = (str, max) => str.length > max ? str.slice(0, max - 1) + "…" : str;
+
     // Draw header row
     pdf.setFillColor(47, 125, 87);
     pdf.rect(16, startY, w - 32, 7, "F");
-    
+
     pdf.setTextColor(255, 255, 255);
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(8.5);
+    pdf.setFontSize(8);
     let cellX = 16;
     headers.forEach((h, idx) => {
       pdf.text(h, cellX + 2, startY + 5);
@@ -174,8 +178,9 @@ export const slipPrestasiTemplate = {
     // Draw data rows
     pdf.setTextColor(41, 38, 27);
     pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(7.8);
     let rowY = startY + 7;
-    
+
     tasmikLog.slice(0, 5).forEach((rec, idx) => {
       // Row box
       pdf.setDrawColor(220, 220, 220);
@@ -188,11 +193,7 @@ export const slipPrestasiTemplate = {
 
       let cellValX = 16;
       vals.forEach((val, cIdx) => {
-        let printVal = String(val);
-        // Truncate comments if too long
-        if (cIdx === 4 && printVal.length > 34) {
-          printVal = printVal.substring(0, 31) + "...";
-        }
+        const printVal = trunc(String(val ?? "—"), colMax[cIdx]);
         pdf.text(printVal, cellValX + 2, rowY + 6.2);
         cellValX += colW[cIdx];
       });
