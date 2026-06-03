@@ -3,7 +3,7 @@ import { SchoolRepository } from "../school/repository/SchoolRepository.js";
 import { Icon, FauxQR, DuitNowQR } from "../../components/Shared.jsx";
 import { decodeQRFile } from "../school/duitnowQR.js";
 
-function DuitNowUploader({ currentPayload, onSaved }) {
+function DuitNowUploader({ currentPayload, onSaved, onDetails }) {
   const [scanning, setScanning] = useState(false);
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState(false);
@@ -22,6 +22,7 @@ function DuitNowUploader({ currentPayload, onSaved }) {
     }
     // Save even if DuitNow signature unconfirmed — show warning but don't block
     await onSaved(result.payload);
+    if (result.details) onDetails?.(result.details);
     if (result.error) setErr(result.error); // non-fatal warning
     else setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
@@ -103,7 +104,7 @@ export function SchoolEditor() {
       setDescription(data.description || "");
       setPhone(data.phone || "");
       setEmail(data.email || "");
-      setFounded(data.founded || 2016);
+      setFounded(data.since || data.founded || 2016);
       setPlan(data.plan || "Percubaan");
       setStatus(data.status || "percubaan");
       setBankName(data.bankName || "");
@@ -127,7 +128,7 @@ export function SchoolEditor() {
         description,
         phone,
         email,
-        founded: parseInt(founded),
+        since: parseInt(founded),
         plan,
         status,
         bankName,
@@ -152,6 +153,12 @@ export function SchoolEditor() {
     if (profile) {
       await SchoolRepository.updateProfile(profile.slug || "al-furqan", { qrCode: payload });
     }
+  };
+
+  const applyQRDetails = (details) => {
+    if (details.recipientName && !name) setName(details.recipientName);
+    if (details.proxyValue) setBankAccount(details.proxyValue);
+    if (details.bankName) setBankName(details.bankName);
   };
 
   if (!profile) {
@@ -272,7 +279,7 @@ export function SchoolEditor() {
             <DuitNowQR payload={qrPayload} size={140} fallbackSeed={7} />
           </div>
 
-          <DuitNowUploader currentPayload={qrPayload} onSaved={saveQR} />
+          <DuitNowUploader currentPayload={qrPayload} onSaved={saveQR} onDetails={applyQRDetails} />
         </div>
 
         {/* Wakaf info card */}

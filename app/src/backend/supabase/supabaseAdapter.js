@@ -162,9 +162,9 @@ export const supabaseAdapter = {
       .from("teachers")
       .select("*")
       .eq("email", email)
-      .single();
+      .limit(1);
     if (error) throw error;
-    return data;
+    return data?.[0] ?? null;
   },
 
   async listAllTeachers(schoolSlug) {

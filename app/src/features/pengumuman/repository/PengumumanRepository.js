@@ -6,7 +6,12 @@ export const PengumumanRepository = {
   async create(announcement) {
     // announcement must include school_slug
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.createAnnouncement(announcement);
+      const full = {
+        id: "ann_" + Date.now(),
+        date: new Date().toISOString().split("T")[0],
+        ...announcement,
+      };
+      return await supabaseAdapter.createAnnouncement(full);
     }
     const db = getMockDb();
     const newAnn = {

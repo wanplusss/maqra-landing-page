@@ -67,6 +67,71 @@ function tryDecode(imageData) {
   return result ? result.data : null;
 }
 
+// AID prefix → bank name map (PayNet Malaysia registered BICs)
+const AID_BANK_MAP = {
+  "A00000061503010101": "Maybank",
+  "A00000061503010102": "CIMB Bank",
+  "A00000061503010103": "Public Bank",
+  "A00000061503010104": "RHB Bank",
+  "A00000061503010105": "Hong Leong Bank",
+  "A00000061503010106": "AmBank",
+  "A00000061503010107": "Bank Islam",
+  "A00000061503010108": "Bank Muamalat",
+  "A00000061503010109": "Affin Bank",
+  "A00000061503010110": "Alliance Bank",
+  "A00000061503010111": "OCBC Bank",
+  "A00000061503010112": "Standard Chartered",
+  "A00000061503010113": "HSBC Bank",
+  "A00000061503010114": "Citibank",
+  "A00000061503010115": "Bank Rakyat",
+  "A00000061503010116": "BSN",
+  "A00000061503010117": "Agrobank",
+  "A00000061503010118": "Bank Simpanan Nasional",
+};
+
+// Extract sub-tags from a merchant account info value string
+function parseSubTags(val) {
+  const sub = new Map();
+  let i = 0;
+  while (i + 4 <= val.length) {
+    const id = val.slice(i, i + 2);
+    const len = parseInt(val.slice(i + 2, i + 4), 10);
+    if (isNaN(len) || len < 0) break;
+    sub.set(id, val.slice(i + 4, i + 4 + len));
+    i += 4 + len;
+  }
+  return sub;
+}
+
+// Parse recipient name, proxy value, bank from EMV tags
+export function parseDuitNowDetails(tags, rawPayload) {
+  const details = { recipientName: null, proxyValue: null, proxyType: null, bankName: null };
+
+  // Tag 59 = Merchant Name
+  if (tags.has("59")) details.recipientName = tags.get("59").trim();
+
+  // Search merchant account info tags 26–51 for PayNet sub-tags
+  for (const [id, val] of tags) {
+    const numId = parseInt(id, 10);
+    if (numId < 26 || numId > 51) continue;
+    const sub = parseSubTags(val);
+
+    // Sub-tag 00 = AID, 01 = proxy type, 02 = proxy value
+    if (sub.has("01")) details.proxyType = sub.get("01").trim();
+    if (sub.has("02")) details.proxyValue = sub.get("02").trim();
+
+    // Try to match AID to bank
+    if (!details.bankName && sub.has("00")) {
+      const aid = sub.get("00").toUpperCase();
+      for (const [prefix, bank] of Object.entries(AID_BANK_MAP)) {
+        if (aid.startsWith(prefix.toUpperCase())) { details.bankName = bank; break; }
+      }
+    }
+  }
+
+  return details;
+}
+
 // Decode QR from uploaded File → { payload, isDuitNow, error }
 export async function decodeQRFile(file) {
   return new Promise((resolve) => {
@@ -102,8 +167,7 @@ export async function decodeQRFile(file) {
 
         if (!payload) {
           resolve({
-            payload: null,
-            isDuitNow: false,
+            payload: null, isDuitNow: false, details: null,
             error: "Tiada QR ditemui dalam imej. Pastikan kod QR jelas, tidak kabur, dan seluruh QR kelihatan dalam imej.",
           });
           return;
@@ -113,16 +177,14 @@ export async function decodeQRFile(file) {
         const isDN = isDuitNow(tags, payload);
 
         if (!isDN) {
-          // Accept it anyway but warn — admin knows their own QR
           resolve({
-            payload,
-            isDuitNow: false,
+            payload, isDuitNow: false, details: null,
             error: `QR ditemui tetapi tandatangan DuitNow tidak dapat disahkan. Kandungan: "${payload.slice(0, 60)}..." — cuba muat naik semula atau gunakan imej asal dari bank.`,
           });
           return;
         }
 
-        resolve({ payload, isDuitNow: true, error: null });
+        resolve({ payload, isDuitNow: true, error: null, details: parseDuitNowDetails(tags, payload) });
       };
       img.onerror = () =>
         resolve({ payload: null, isDuitNow: false, error: "Gagal membaca imej. Cuba format PNG atau JPG." });

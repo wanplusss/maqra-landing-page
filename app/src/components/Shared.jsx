@@ -154,17 +154,18 @@ export function GredBadge({ g }) {
 export function StatCard({ icon, label, value, sub, tone = "accent" }) {
   const bg = tone === "accent" ? "var(--accent-soft)" : `var(--st-${tone}-fill)`;
   const fg = tone === "accent" ? "var(--accent-deep)" : `var(--st-${tone}-ink)`;
+  const isEmpty = value === 0 || value === "0" || value === "0%";
   return (
-    <div className="card" style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
+    <div className="card stat-card" style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-3)" }}>{label}</span>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</span>
         <span style={{ width: 34, height: 34, borderRadius: 10, background: bg, color: fg, display: "grid", placeItems: "center" }}>
           <Icon name={icon} size={18} />
         </span>
       </div>
       <div>
-        <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1 }}>{value}</div>
-        {sub && <div style={{ fontSize: "12.5px", color: "var(--ink-3)", marginTop: 5 }}>{sub}</div>}
+        <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1, color: isEmpty ? "var(--ink-3)" : "var(--ink)" }}>{value}</div>
+        {sub && <div style={{ fontSize: "12px", color: "var(--ink-3)", marginTop: 5 }}>{sub}</div>}
       </div>
     </div>
   );
