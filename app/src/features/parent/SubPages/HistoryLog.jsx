@@ -9,7 +9,7 @@ export function HistoryLog({ historyList = [] }) {
     if (sort === "date") {
       return list.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else {
-      return list.sort((a, b) => b.to - a.to);
+      return list.sort((a, b) => Number(b.to) - Number(a.to));
     }
   }, [sort, historyList]);
 

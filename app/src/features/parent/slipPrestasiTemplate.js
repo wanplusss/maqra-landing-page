@@ -204,7 +204,7 @@ export const slipPrestasiTemplate = {
     });
 
     // 8. Signatures Footer
-    const sigY = 244;
+    const sigY = Math.max(rowY + 8, 244);
     pdf.setDrawColor(180, 180, 180);
     pdf.line(30, sigY + 22, 80, sigY + 22);
     pdf.line(w - 80, sigY + 22, w - 30, sigY + 22);

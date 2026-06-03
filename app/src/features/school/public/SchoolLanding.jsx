@@ -186,7 +186,7 @@ export function SchoolLanding({ onEnterLookup }) {
               <div key={an.id} className="card" style={{ padding: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
                   <span className="badge badge-ok">{an.category}</span>
-                  <span className="mono" style={{ fontSize: "11.5px", color: "var(--ink-3)" }}>{an.date}</span>
+                  <span className="mono" style={{ fontSize: "11.5px", color: "var(--ink-3)" }}>{new Date(an.date).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}</span>
                 </div>
                 <h3 style={{ margin: "0 0 6px", fontSize: 15, fontWeight: 800, lineHeight: 1.3 }}>{an.title}</h3>
                 <p style={{ margin: 0, fontSize: 13, color: "var(--ink-3)", lineHeight: 1.55 }}>{an.content}</p>

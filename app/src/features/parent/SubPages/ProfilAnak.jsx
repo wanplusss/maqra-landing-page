@@ -109,7 +109,7 @@ export function ProfilAnak({ st, school }) {
             <Row k="Umur Pelajar" v={`${st.umur} Tahun`} />
             <Row k="No. Penjaga" v={st.parent} />
             <Row k="Tarikh Enrol" v={st.enroll} />
-            <Row k="Sasaran Bulanan" v={`${st.target} m.s. / bulan`} />
+            <Row k="Sasaran Bulanan" v={st.target ? `${st.target} m.s. / bulan` : "—"} />
             <Row k="Institusi" v={school.name} />
           </div>
         </div>

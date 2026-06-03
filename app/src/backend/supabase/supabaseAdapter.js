@@ -228,9 +228,9 @@ export const supabaseAdapter = {
       .from("platform_owners")
       .select("*")
       .eq("email", email)
-      .maybeSingle();
+      .limit(1);
     if (error) throw error;
-    return data;
+    return data?.[0] ?? null;
   },
 
   async getSchoolByAdminEmail(email) {
@@ -239,9 +239,9 @@ export const supabaseAdapter = {
       .from("schools")
       .select("*")
       .eq("admin_email", email)
-      .maybeSingle();
+      .limit(1);
     if (error) throw error;
-    return data;
+    return data?.[0] ?? null;
   },
 
   async listAllSchools() {
