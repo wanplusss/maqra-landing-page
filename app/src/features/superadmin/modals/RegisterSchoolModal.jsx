@@ -39,7 +39,7 @@ export function RegisterSchoolModal({ onClose, onSaved }) {
         phone: phone.trim(),
         plan,
         status,
-        since: new Date().toISOString().slice(0, 7),
+        since: new Date().toISOString().slice(0, 10),
         admin_email: adminEmail.trim().toLowerCase(),
         admin_password: adminPassword,
       });
