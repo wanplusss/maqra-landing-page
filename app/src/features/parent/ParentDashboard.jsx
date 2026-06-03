@@ -120,20 +120,23 @@ export function ParentDashboard({ studentId, onLogout, columns }) {
 
   const loadData = async () => {
     const student = await StudentRepository.getById(studentId);
-    const sch = await SchoolRepository.getProfile();
+    const sch = await SchoolRepository.getProfile(student.school_slug);
     const hist = await TasmikRepository.getRecordsForStudent(studentId);
     
     // Calculate student details
     const grid = await MaqraGridService.getGridForStudent(studentId);
     
+    const frontierIdx = grid.frontier > 0 ? grid.frontier - 1 : 0;
     setSt({
       ...student,
+      statusMap: grid.statusMap,
+      frontier: grid.frontier,
       progress: grid.progressPercent,
       tally: grid.tally,
       juzuk: grid.frontier > 0 ? Math.floor(grid.frontier / 20) + 1 : 1,
-      surah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+      surah: grid.pages[frontierIdx].surah,
       lastHafazan: grid.frontier > 0 ? grid.frontier : 1,
-      lastHafazanSurah: grid.pages[grid.frontier > 0 ? grid.frontier - 1 : 0].surah,
+      lastHafazanSurah: grid.pages[frontierIdx].surah,
     });
     setSchool(sch);
     setHistory(hist);
