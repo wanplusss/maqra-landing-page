@@ -53,7 +53,7 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
       <div className="card" style={{ padding: 22, marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Peta Haba Hafazan 30 Juzuk</h3>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Peta Hafazan 30 Juzuk</h3>
             <span className="badge">Kelas: {className}</span>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -67,7 +67,7 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
         </div>
 
         {loading ? (
-          <div className="empty">Memuatkan data peta haba kohort...</div>
+          <div className="empty">Memuatkan data kohort...</div>
         ) : sortedList.length === 0 ? (
           <div className="empty">Tiada pelajar berdaftar dalam kelas ini.</div>
         ) : (
@@ -76,9 +76,9 @@ export function ClassView({ onOpenStudent, schoolSlug }) {
               <thead>
                 <tr>
                   <th style={{ width: 180, background: "var(--surface)", borderBottom: "1.5px solid var(--line)" }}>Nama Pelajar</th>
-                  <th style={{ width: 90, textAlign: "center", borderBottom: "1.5px solid var(--line)" }}>Hafaz (m.s.)</th>
-                  <th style={{ width: 80, textAlign: "center", borderBottom: "1.5px solid var(--line)" }}>Sasaran / Bln</th>
-                  <th style={{ borderBottom: "1.5px solid var(--line)", textAlign: "center" }}>30 Petak Juzuk Al-Quran (Juz 1 - Juz 30)</th>
+                  <th style={{ width: 90, textAlign: "center", borderBottom: "1.5px solid var(--line)" }}>Dihafaz</th>
+                  <th style={{ width: 80, textAlign: "center", borderBottom: "1.5px solid var(--line)" }}>Sasaran / Bulan</th>
+                  <th style={{ borderBottom: "1.5px solid var(--line)", textAlign: "center" }}>30 Petak Juzuk Al-Quran (Juzuk 1 – 30)</th>
                 </tr>
               </thead>
               <tbody>

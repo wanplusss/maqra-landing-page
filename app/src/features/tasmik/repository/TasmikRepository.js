@@ -5,7 +5,12 @@ import { getMockDb, saveMockDb } from "../../../backend/mockDb.js";
 export const TasmikRepository = {
   async saveRecord(record) {
     if (IS_SUPABASE_CONFIGURED) {
-      return await supabaseAdapter.saveTasmikRecord(record);
+      const full = {
+        id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+        date: new Date().toISOString(),
+        ...record,
+      };
+      return await supabaseAdapter.saveTasmikRecord(full);
     }
     const db = getMockDb();
     const newRecord = {

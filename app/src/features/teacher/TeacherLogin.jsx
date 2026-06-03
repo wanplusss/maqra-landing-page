@@ -14,6 +14,7 @@ export function TeacherLogin({ role = "teacher", slug = "al-furqan", defaultEmai
   const [pw, setPw] = useState(getDefaultPassword(role));
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const submit = async (e) => {
     if (e) e.preventDefault();
@@ -63,7 +64,12 @@ export function TeacherLogin({ role = "teacher", slug = "al-furqan", defaultEmai
             </div>
             <div className="field">
               <label>Kata Laluan</label>
-              <input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} disabled={loading} required />
+              <div style={{ position: "relative" }}>
+                <input className="input" type={showPw ? "text" : "password"} value={pw} onChange={(e) => setPw(e.target.value)} disabled={loading} required style={{ width: "100%", paddingRight: 36 }} />
+                <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", padding: 0, lineHeight: 1 }}>
+                  <Icon name={showPw ? "eye-off" : "eye"} size={16} />
+                </button>
+              </div>
             </div>
             {err && (
               <div style={{ color: "var(--gr-sederhana)", fontSize: "12.5px", fontWeight: 600, textAlign: "center" }}>
