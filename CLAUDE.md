@@ -49,7 +49,9 @@ src/features/
   auth/          — authService, authMiddleware, roles
   pengumuman/    — PengumumanRepository, PengumumanService (announcements)
   sijil/         — SijilService, sijilTemplate (certificate PDF generation)
-  superadmin/    — SuperAdminDashboard, superAdminService
+  superadmin/    — SuperAdminDashboard (orchestrator), superAdminService, planConfig
+                   sections/: PlatformMetrics, TenantTable, ActivityFeed, HealthAlerts, GrowthChart
+                   modals/: RegisterSchoolModal, EditSchoolModal
   responsive/    — responsiveContext, responsiveStrategy, useResponsive
   tweaks/        — TweaksPanel, tweaksContext, tweaksStrategies (UI personalizer)
 src/backend/
@@ -84,6 +86,22 @@ Each entity has a **Repository** that delegates to `supabaseAdapter` (live) or `
 ### Supabase tables
 
 `schools`, `students`, `teachers`, `tasmik_records`, `announcements`, `student_targets`. **RLS is currently disabled on all tables** — this is a known security gap to address before production.
+
+### SaaS Plan Tiers
+
+Defined in `features/superadmin/planConfig.js`. Always import from there — never hardcode plan names or prices elsewhere.
+
+| Plan | RM/tahun | MRR | Pelajar limit |
+|------|----------|-----|---------------|
+| Percubaan | 0 | 0 | 30 (60 days trial) |
+| Asas | 480 | 40 | 150 |
+| Premium | 960 | 80 | Unlimited |
+
+Feature gating is defined in `planConfig.js` but **not yet enforced** (dev phase). Do not add enforcement until explicitly instructed.
+
+### SuperAdmin Cockpit sections
+
+`features/superadmin/sections/` — one component per cockpit panel. `SuperAdminDashboard.jsx` is a thin orchestrator only — no data logic, no JSX beyond layout.
 
 ### Design docs
 

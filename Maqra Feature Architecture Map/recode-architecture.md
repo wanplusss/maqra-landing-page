@@ -216,6 +216,19 @@
 **NFR Tags:** Consistency, Performance
 **Dependencies:** student-repository, analytics-service, auth-service
 
+## SaaS Plan Configuration
+**Pattern:** Configuration Object
+**Risk:** low
+**Effort:** done
+**Business Reason:** Single source of truth for plan tiers prevents pricing logic from scattering across UI, service, and gating code.
+**Data Flow:** `planConfig.js` exports `PLANS` map, `calcMRR()` helper, `PLAN_OPTIONS`/`STATUS_OPTIONS` arrays. All plan-aware components import from here — never hardcode plan names or prices.
+**Plan tiers:**
+- **Percubaan** — Free, 30 pelajar max, 60 days, tasmik only
+- **Asas** — RM 480/tahun (RM 40 MRR), 150 pelajar, + pengumuman + laporan PDF
+- **Premium** — RM 960/tahun (RM 80 MRR), unlimited, + analitik penuh + sijil PDF + export
+**NFR Tags:** Maintainability
+**Dependencies:** None
+
 ## Supabase Backend Integration
 **Pattern:** Adapter
 **Risk:** medium
