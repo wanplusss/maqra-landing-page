@@ -157,10 +157,9 @@ export const slipPrestasiTemplate = {
     const startY = 171;
     // Cols: Tarikh, Kategori, Halaman, Gred, Ulasan Guru, Asatizah — total = 176
     const colW    = [18,     22,       20,      28,    50,           38];
-    const colMax  = [8,      10,       9,       14,    26,           18]; // max chars before truncate
     const headers = ["Tarikh", "Kategori", "Halaman", "Gred", "Ulasan Guru", "Asatizah"];
-
-    const trunc = (str, max) => str.length > max ? str.slice(0, max - 1) + "…" : str;
+    const ROW_H = 13; // taller row to fit 2 lines
+    const LINE_H = 4.2;
 
     // Draw header row
     pdf.setFillColor(47, 125, 87);
@@ -182,10 +181,10 @@ export const slipPrestasiTemplate = {
     let rowY = startY + 7;
 
     tasmikLog.slice(0, 5).forEach((rec, idx) => {
-      // Row box
+      // Row box — taller to accommodate 2 lines
       pdf.setDrawColor(220, 220, 220);
       pdf.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 248);
-      pdf.rect(16, rowY, w - 32, 9, "FD");
+      pdf.rect(16, rowY, w - 32, ROW_H, "FD");
 
       const dateStr = new Date(rec.date).toLocaleDateString("ms-MY", { day: "numeric", month: "numeric" });
       const pages = `${rec.from}-${rec.to}`;
@@ -193,12 +192,15 @@ export const slipPrestasiTemplate = {
 
       let cellValX = 16;
       vals.forEach((val, cIdx) => {
-        const printVal = trunc(String(val ?? "—"), colMax[cIdx]);
-        pdf.text(printVal, cellValX + 2, rowY + 6.2);
+        const colWidthMm = colW[cIdx] - 3; // inner padding
+        // Wrap text to fit column width (max 2 lines)
+        const lines = pdf.splitTextToSize(String(val ?? "—"), colWidthMm);
+        const display = lines.slice(0, 2); // cap at 2 lines
+        pdf.text(display, cellValX + 2, rowY + 4.5, { lineHeightFactor: LINE_H / 3.5 });
         cellValX += colW[cIdx];
       });
 
-      rowY += 9;
+      rowY += ROW_H;
     });
 
     // 8. Signatures Footer
