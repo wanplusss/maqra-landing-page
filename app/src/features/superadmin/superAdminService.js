@@ -42,6 +42,6 @@ export const SuperAdminService = {
 
   async updateSchool(slug, updates) {
     if (!IS_SUPABASE_CONFIGURED) return;
-    return await supabaseAdapter.updateSchool(slug, updates);
+    return await supabaseAdapter.updateSchoolProfile(slug, updates);
   },
 };
