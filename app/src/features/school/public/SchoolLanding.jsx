@@ -39,9 +39,9 @@ export function SchoolLanding({ slug, onEnterLookup, onBack }) {
 
     try {
       // Direct pass student record to parent dash
-      const found = await onEnterLookup(sid.trim().toUpperCase());
+      const found = await onEnterLookup(sid.trim());
       if (!found) {
-        setErr("ID Pelajar tidak dijumpai. Cuba ID contoh: STU00123");
+        setErr("ID Pelajar tidak dijumpai. Semak semula ID yang diberikan oleh pihak maahad.");
       }
     } catch (e) {
       setErr(e.message);
