@@ -1,3 +1,5 @@
+import { getJuzukFromPage } from "../maqra/domain/pageMapping.js";
+
 export const slipPrestasiTemplate = {
   render(pdf, student, school, grid, prediction, tasmikLog) {
     const w = 210;
@@ -73,7 +75,7 @@ export const slipPrestasiTemplate = {
     pdf.setFont("helvetica", "bold");
     pdf.text("Muka Terkini:", 120, 68);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`m.s. ${student.frontier} (Juzuk ${grid.juzuk})`, 146, 68);
+    pdf.text(`m.s. ${student.frontier} (Juzuk ${getJuzukFromPage(grid.frontier)})`, 146, 68);
 
     pdf.setFont("helvetica", "bold");
     pdf.text("Surah Terkini:", 120, 74);
@@ -154,7 +156,7 @@ export const slipPrestasiTemplate = {
 
     const startY = 171;
     const colW = [22, 24, 20, 15, 65, 30]; // total = 176
-    const headers = ["Tarikh", "Kategori", "Halaman", "Gred", "Ulasan Guru", "Guru Penguji"];
+    const headers = ["Tarikh", "Kategori", "Halaman", "Gred", "Ulasan Guru", "Asatizah"];
     
     // Draw header row
     pdf.setFillColor(47, 125, 87);

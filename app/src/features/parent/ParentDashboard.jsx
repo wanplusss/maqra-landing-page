@@ -297,7 +297,7 @@ function CellDetail({ st, page, onClose, historyList }) {
               <Row k="Ulasan" v={rec.ulasan} />
               <Row k="Masalah" v={rec.masalah || "—"} />
               <Row k="Cadangan" v={rec.cadangan || "Teruskan usaha."} />
-              <Row k="Penguji" v={rec.guru} />
+              <Row k="Asatizah" v={rec.guru} />
             </div>
           ) : (
             <div className="empty" style={{ padding: "26px 10px" }}>

@@ -48,7 +48,7 @@ export const MaqraGridService = {
         ulasan: tasmikInput.ulasan || "",
         masalah: tasmikInput.masalah || "",
         cadangan: tasmikInput.cadangan || "",
-        guru: tasmikInput.guru || "Guru Penguji",
+        guru: tasmikInput.guru || "Asatizah",
         ...(resolvedSlug && { school_slug: resolvedSlug }),
       };
       await TasmikRepository.saveRecord(record);
