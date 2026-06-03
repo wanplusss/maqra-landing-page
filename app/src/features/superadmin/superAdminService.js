@@ -37,7 +37,7 @@ export const SuperAdminService = {
         };
       });
     }
-    return await supabaseAdapter.getStudentGrowthByMonth();
+    return await supabaseAdapter.getTasmikGrowthByMonth();
   },
 
   async updateSchool(slug, updates) {

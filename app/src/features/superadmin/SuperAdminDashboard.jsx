@@ -21,15 +21,20 @@ export function SuperAdminDashboard() {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [list, activity, growth] = await Promise.all([
-      SuperAdminService.getPlatformDashboardData(),
-      SuperAdminService.getActivityData(),
-      SuperAdminService.getGrowthData(),
-    ]);
-    setSchools(list);
-    setActivityMap(activity);
-    setGrowthData(growth);
-    setLoading(false);
+    try {
+      const [list, activity, growth] = await Promise.all([
+        SuperAdminService.getPlatformDashboardData(),
+        SuperAdminService.getActivityData().catch(() => ({})),
+        SuperAdminService.getGrowthData().catch(() => []),
+      ]);
+      setSchools(list);
+      setActivityMap(activity);
+      setGrowthData(growth);
+    } catch (e) {
+      console.error("[SuperAdminDashboard] loadAll failed:", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);

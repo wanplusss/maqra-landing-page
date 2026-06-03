@@ -346,17 +346,17 @@ export const supabaseAdapter = {
     return latest; // { school_slug: date_string }
   },
 
-  async getStudentGrowthByMonth() {
+  async getTasmikGrowthByMonth() {
     checkActive();
     const { data, error } = await supabase
-      .from("students")
-      .select("created_at")
-      .order("created_at", { ascending: true });
+      .from("tasmik_records")
+      .select("date")
+      .order("date", { ascending: true });
     if (error) throw error;
 
     const map = {};
     for (const row of data) {
-      const month = row.created_at?.slice(0, 7);
+      const month = row.date?.slice(0, 7);
       if (!month) continue;
       map[month] = (map[month] || 0) + 1;
     }
