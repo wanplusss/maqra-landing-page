@@ -325,11 +325,11 @@ function MainAppContent() {
                 onBack={() => setSelectedSchoolSlug(null)}
                 onEnterLookup={async (id) => {
                   const s = await StudentRepository.getById(id);
-                  if (s) {
+                  if (s && s.school_slug === selectedSchoolSlug) {
                     setActiveStudentId(s.id);
                     return s;
                   }
-                  return null;
+                  return null; // not found or wrong school — SchoolLanding shows error
                 }}
               />
             ) : (
