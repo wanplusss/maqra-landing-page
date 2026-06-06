@@ -157,7 +157,7 @@ function SVGPageGrid({ statusMap, activeFilter }) {
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setTooltip(null)}
         style={{ display: "block" }}
-        aria-label="Grid hafazan 604 muka surat mushaf Madani"
+        aria-label="Grid hafazan 604 muka surat"
       >
         {Array.from({ length: 604 }, (_, i) => {
           const page = i + 1;

@@ -33,7 +33,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'Grid 604 Muka Surat',
-    desc: 'Visualisasi penuh mushaf Madani. Setiap muka surat berwarna mengikut status hafazan — belum, talaqqi, hafazan, murajaah, syahadah.',
+    desc: 'Visualisasi penuh 604 muka surat. Setiap muka surat berwarna mengikut status hafazan — belum, talaqqi, hafazan, murajaah, syahadah.',
   },
   {
     icon: (
