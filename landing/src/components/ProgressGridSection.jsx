@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const JUZ_START = [
   1, 22, 42, 62, 82, 102, 121, 142, 162, 182,
@@ -34,17 +34,13 @@ const SURAH = [
 
 function getJuzukFromPage(page) {
   let j = 1;
-  for (let i = 0; i < 30; i++) {
-    if (page >= JUZ_START[i]) j = i + 1;
-  }
+  for (let i = 0; i < 30; i++) if (page >= JUZ_START[i]) j = i + 1;
   return j;
 }
 
 function getSurahFromPage(page) {
   let name = "Al-Fatihah";
-  for (let i = 0; i < SURAH.length; i++) {
-    if (page >= SURAH[i][0]) name = SURAH[i][1];
-  }
+  for (let i = 0; i < SURAH.length; i++) if (page >= SURAH[i][0]) name = SURAH[i][1];
   return name;
 }
 
@@ -73,23 +69,35 @@ const DEMO_STATUS_MAP = (() => {
 const DEMO_TALLY = (() => {
   const t = {};
   for (const s of STATUS) t[s.key] = 0;
-  for (const v of Object.values(DEMO_STATUS_MAP)) {
-    if (t[v] !== undefined) t[v]++;
-  }
+  for (const v of Object.values(DEMO_STATUS_MAP)) if (t[v] !== undefined) t[v]++;
   return t;
 })();
 
+// Grid geometry
+const COLS   = 25;
+const CELL   = 24;
+const GAP    = 3;
+const STRIDE = CELL + GAP;
+const ROWS   = Math.ceil(604 / COLS);
+const VW     = COLS * STRIDE - GAP;
+const VH     = ROWS * STRIDE - GAP;
+
+function getPos(page) {
+  const i = page - 1;
+  return { x: (i % COLS) * STRIDE, y: Math.floor(i / COLS) * STRIDE };
+}
+
 function GridTooltip({ data }) {
   if (!data) return null;
-  const { rect, page, status } = data;
+  const { clientX, clientY, page, status } = data;
   const st = STATUS_MAP[status] || STATUS_MAP["belum"];
-  const top = rect.top < 200;
+  const fromTop = clientY < 250;
   return (
     <div style={{
       position: "fixed",
-      left: Math.min(Math.max(rect.left + rect.width / 2, 130), window.innerWidth - 130),
-      top: top ? rect.bottom + 10 : rect.top - 10,
-      transform: `translate(-50%, ${top ? "0" : "-100%"})`,
+      left: Math.min(Math.max(clientX, 130), window.innerWidth - 130),
+      top: fromTop ? clientY + 16 : clientY - 16,
+      transform: `translate(-50%, ${fromTop ? "0" : "-100%"})`,
       zIndex: 70,
       pointerEvents: "none",
     }}>
@@ -100,9 +108,13 @@ function GridTooltip({ data }) {
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
           <span style={{ fontWeight: 800, fontSize: 15 }}>Muka Surat {page}</span>
-          <span style={{ fontSize: 11, opacity: 0.65, fontFamily: "var(--font-mono)" }}>Juz {getJuzukFromPage(page)}</span>
+          <span style={{ fontSize: 11, opacity: 0.65, fontFamily: "var(--font-mono)" }}>
+            Juz {getJuzukFromPage(page)}
+          </span>
         </div>
-        <div style={{ fontSize: "12.5px", opacity: 0.8, marginBottom: 9 }}>Surah {getSurahFromPage(page)}</div>
+        <div style={{ fontSize: "12.5px", opacity: 0.8, marginBottom: 9 }}>
+          Surah {getSurahFromPage(page)}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ width: 9, height: 9, borderRadius: 3, background: `var(--st-${st.css}-ink)` }} />
           <span style={{ fontSize: "12.5px", fontWeight: 700 }}>{st.label}</span>
@@ -112,64 +124,73 @@ function GridTooltip({ data }) {
   );
 }
 
-const COLS = 20;
+function SVGPageGrid({ statusMap, activeFilter }) {
+  const svgRef = useRef(null);
+  const [tooltip, setTooltip] = useState(null);
 
-function PageGrid({ statusMap, activeFilter }) {
-  const [hover, setHover] = useState(null);
-
-  const enter = (e, page) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setHover({ rect, page, status: statusMap[page] || "belum" });
+  const handleMouseMove = (e) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    const vx = ((e.clientX - r.left) / r.width) * VW;
+    const vy = ((e.clientY - r.top) / r.height) * VH;
+    const col = Math.floor(vx / STRIDE);
+    const row = Math.floor(vy / STRIDE);
+    const cx = vx - col * STRIDE;
+    const cy = vy - row * STRIDE;
+    if (cx < CELL && cy < CELL && col >= 0 && col < COLS && row >= 0 && row < ROWS) {
+      const page = row * COLS + col + 1;
+      if (page >= 1 && page <= 604) {
+        setTooltip({ clientX: e.clientX, clientY: e.clientY, page, status: statusMap[page] || "belum" });
+        return;
+      }
+    }
+    setTooltip(null);
   };
 
   return (
-    <div style={{ position: "relative" }} onMouseLeave={() => setHover(null)}>
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-        gap: 4,
-      }}>
+    <div style={{ position: "relative" }}>
+      <svg
+        ref={svgRef}
+        width="100%"
+        viewBox={`0 0 ${VW} ${VH}`}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setTooltip(null)}
+        style={{ display: "block" }}
+        aria-label="Grid hafazan 604 muka surat mushaf Madani"
+      >
         {Array.from({ length: 604 }, (_, i) => {
           const page = i + 1;
           const s = statusMap[page] || "belum";
           const css = STATUS_MAP[s]?.css || "belum";
+          const { x, y } = getPos(page);
           const isJuz = JUZ_START.includes(page);
           const dimmed = activeFilter && s !== activeFilter;
 
           return (
-            <button
-              key={page}
-              onMouseEnter={(e) => enter(e, page)}
-              style={{
-                aspectRatio: "1/1", border: "none", borderRadius: 5,
-                background: `var(--st-${css}-fill)`,
-                color: `var(--st-${css}-ink)`,
-                fontFamily: "var(--font-mono)", fontSize: "9.5px", fontWeight: 600,
-                display: "grid", placeItems: "center",
-                cursor: "default", position: "relative",
-                outline: isJuz ? `1.5px solid var(--st-${css}-ink)` : "none",
-                outlineOffset: "-1.5px",
-                opacity: dimmed ? 0.15 : 1,
-                transition: "transform .1s, box-shadow .1s, opacity .15s",
-                padding: 0,
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = "scale(1.18)";
-                e.currentTarget.style.boxShadow = "0 4px 12px -2px hsl(var(--shadow-color) / 0.3)";
-                e.currentTarget.style.zIndex = 3;
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = "";
-                e.currentTarget.style.boxShadow = "";
-                e.currentTarget.style.zIndex = "";
-              }}
-            >
-              {page}
-            </button>
+            <g key={page} className="grid-cell" opacity={dimmed ? 0.12 : 1}>
+              <rect
+                x={x} y={y} width={CELL} height={CELL} rx={4}
+                fill={`var(--st-${css}-fill)`}
+                stroke={isJuz ? `var(--st-${css}-ink)` : "none"}
+                strokeWidth={isJuz ? 1.5 : 0}
+              />
+              <text
+                x={x + CELL / 2} y={y + CELL / 2 + 3.5}
+                textAnchor="middle"
+                fontSize={8} fontWeight={600}
+                fontFamily="var(--font-mono)"
+                fill={`var(--st-${css}-ink)`}
+                pointerEvents="none"
+                style={{ userSelect: "none" }}
+              >
+                {page}
+              </text>
+            </g>
           );
         })}
-      </div>
-      <GridTooltip data={hover} />
+      </svg>
+      <GridTooltip data={tooltip} />
     </div>
   );
 }
@@ -184,7 +205,7 @@ export function ProgressGridSection() {
         <h2 className="section-title">604 muka surat — satu pandangan</h2>
         <p className="section-sub">
           Setiap muka surat mushaf diwakili satu sel. Warna menunjukkan status — guru dan ibu bapa
-          nampak progres sebenar sekilas mata. Klik mana-mana sel untuk melihat butiran.
+          nampak progres sebenar sekilas mata.
         </p>
 
         <div className="card" style={{ padding: "28px 24px" }}>
@@ -201,8 +222,8 @@ export function ProgressGridSection() {
                     border: on ? "none" : "1.5px solid var(--line)",
                     background: on ? `var(--st-${s.css}-fill)` : "transparent",
                     color: on ? `var(--st-${s.css}-ink)` : "var(--ink-2)",
-                    fontFamily: "inherit",
-                    fontWeight: 700, fontSize: 13, cursor: "pointer",
+                    fontFamily: "inherit", fontWeight: 700, fontSize: 13,
+                    cursor: "pointer",
                     outline: on ? `2px solid var(--st-${s.css}-ink)` : "none",
                     outlineOffset: -3,
                     transition: "all .15s",
@@ -214,10 +235,7 @@ export function ProgressGridSection() {
                     opacity: on ? 1 : 0.7,
                   }} />
                   {s.label}
-                  <span style={{
-                    opacity: 0.6,
-                    fontFamily: "var(--font-mono)", fontSize: 11,
-                  }}>
+                  <span style={{ opacity: 0.6, fontFamily: "var(--font-mono)", fontSize: 11 }}>
                     {DEMO_TALLY[s.key]}
                   </span>
                 </button>
@@ -225,7 +243,7 @@ export function ProgressGridSection() {
             })}
           </div>
 
-          <PageGrid statusMap={DEMO_STATUS_MAP} activeFilter={active} />
+          <SVGPageGrid statusMap={DEMO_STATUS_MAP} activeFilter={active} />
 
           <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
             {STATUS.map((s) => (

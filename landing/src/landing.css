@@ -455,6 +455,17 @@ p  { color: var(--ink-2); line-height: 1.65; }
 .ptbl tbody tr:hover { background: var(--surface-2); }
 .pmono { font-family: ui-monospace, monospace; font-size: 13px !important; }
 
+/* ── SVG Page Grid ───────────────────────────── */
+.grid-cell {
+  cursor: default;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform .12s;
+}
+.grid-cell:hover {
+  transform: scale(1.22);
+}
+
 /* ── Footer ──────────────────────────────────── */
 .footer { background: var(--ink); padding: 32px 0; }
 .footer-inner {
