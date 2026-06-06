@@ -1,3 +1,25 @@
+import { Navbar }       from './components/Navbar.jsx';
+import { Hero }         from './components/Hero.jsx';
+import { PainSection }  from './components/PainSection.jsx';
+import { HowItWorks }   from './components/HowItWorks.jsx';
+import { Features }     from './components/Features.jsx';
+import { Pricing }      from './components/Pricing.jsx';
+import { CtaBanner }    from './components/CtaBanner.jsx';
+import { Footer }       from './components/Footer.jsx';
+
 export default function App() {
-  return <div style={{ padding: 40, fontFamily: 'sans-serif' }}>Maqra Landing — scaffolding OK</div>;
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <PainSection />
+        <HowItWorks />
+        <Features />
+        <Pricing />
+        <CtaBanner />
+      </main>
+      <Footer />
+    </>
+  );
 }
