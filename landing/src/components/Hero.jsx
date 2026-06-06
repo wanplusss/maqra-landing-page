@@ -1,4 +1,4 @@
-import { MushafGrid } from './MushafGrid.jsx';
+import { TornPage } from './TornPage.jsx';
 
 export function Hero() {
   return (
@@ -17,7 +17,7 @@ export function Hero() {
           </div>
         </div>
         <div className="hero-graphic">
-          <MushafGrid />
+          <TornPage />
         </div>
       </div>
     </section>
