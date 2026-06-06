@@ -380,6 +380,61 @@ p  { color: var(--ink-2); line-height: 1.65; }
 }
 .cta-btn:hover { background: var(--bg); border-color: var(--bg); }
 
+/* ── ProgressLog ─────────────────────────────── */
+.proglog-section { background: var(--bg); }
+.proglog-card    { overflow: hidden; }
+.proglog-head    {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.proglog-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.ptab {
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 5px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ptab:hover { color: var(--ink); }
+.ptab-on    { background: var(--accent); color: #fff; }
+
+.ptbl { width: 100%; border-collapse: collapse; min-width: 820px; }
+.ptbl th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ptbl td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-2);
+  font-size: 14px;
+  vertical-align: middle;
+}
+.ptbl tbody tr:last-child td { border-bottom: none; }
+.ptbl tbody tr:hover { background: var(--surface-2); }
+.pmono { font-family: ui-monospace, monospace; font-size: 13px !important; }
+
 /* ── Footer ──────────────────────────────────── */
 .footer { background: var(--ink); padding: 32px 0; }
 .footer-inner {
